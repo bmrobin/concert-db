@@ -1,0 +1,28 @@
+[project]
+name = "concert-db"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "ruff>=0.13.1",
+    "sqlalchemy>=2.0.43",
+]
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+    "pytest-env>=1.1.5",
+]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["SIM", "I", "ARG", "E", "W", "F", "RUF"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v -s"
+
+[tool.pytest_env]
+ENVIRONMENT = "test"
