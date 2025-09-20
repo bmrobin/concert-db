@@ -15,8 +15,6 @@ class Concert(Base):
     artist_id: Mapped[int] = mapped_column(ForeignKey("artists.id"))
     venue_id: Mapped[Optional[int]] = mapped_column(ForeignKey("venues.id"))
     date: Mapped[Optional[str]]
-
-    # Relationships
     artist: Mapped["Artist"] = relationship(back_populates="concerts")
     venue: Mapped[Optional["Venue"]] = relationship(back_populates="concerts")
 

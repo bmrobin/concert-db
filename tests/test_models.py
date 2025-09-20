@@ -45,7 +45,7 @@ def test_create_concert_with_relationships(db_session: Session):
     db_session.add(venue)
     db_session.commit()
 
-    concert = Concert(artist_id=artist.id, venue_id=venue.id, date="1975-05-24")
+    concert = Concert(artist=artist, venue=venue, date="1975-05-24")
     db_session.add(concert)
     db_session.commit()
 
@@ -57,13 +57,13 @@ def test_create_concert_with_relationships(db_session: Session):
     assert retrieved_concert.venue.name == "Wembley Stadium"
 
 
-def test_artist_concerts_relationship(db_session: Session):
+def test_concerts_relationship(db_session: Session):
     artist = Artist(name="Pink Floyd", genre="Progressive Rock")
     db_session.add(artist)
     db_session.commit()
 
-    concert1 = Concert(artist_id=artist.id, date="1973-03-01")
-    concert2 = Concert(artist_id=artist.id, date="1975-09-15")
+    concert1 = Concert(artist=artist, date="1973-03-01")
+    concert2 = Concert(artist=artist, date="1975-09-15")
 
     db_session.add(concert1)
     db_session.add(concert2)
@@ -72,5 +72,40 @@ def test_artist_concerts_relationship(db_session: Session):
     retrieved_artist = db_session.query(Artist).filter_by(name="Pink Floyd").first()
     assert retrieved_artist is not None
     assert len(retrieved_artist.concerts) == 2
-    assert retrieved_artist.concerts[0].date in ["1973-03-01", "1975-09-15"]
-    assert retrieved_artist.concerts[1].date in ["1973-03-01", "1975-09-15"]
+    date_one = retrieved_artist.concerts[0].date
+    date_two = retrieved_artist.concerts[1].date
+    assert date_one is not None
+    assert date_two is not None
+    assert sorted([date_one, date_two]) == ["1973-03-01", "1975-09-15"]
+
+
+def test_venues_relationship(db_session: Session):
+    venue1 = Venue(name="Benaroya Hall", location="Seattle, WA")
+    venue2 = Venue(name="Key Arena", location="Seattle, WA")
+    db_session.add(venue1)
+    db_session.add(venue2)
+    db_session.commit()
+
+    artist = Artist(name="Pearl Jam", genre="Rock")
+    db_session.add(artist)
+    db_session.commit()
+
+    concert1 = Concert(artist=artist, venue=venue1, date="2003-10-22")
+    concert2 = Concert(artist=artist, venue=venue2, date="2000-11-06")
+    concert3 = Concert(artist=artist, venue=venue2, date="2000-11-05")
+
+    db_session.add(concert1)
+    db_session.add(concert2)
+    db_session.add(concert3)
+    db_session.commit()
+
+    assert db_session.query(Venue).filter_by(name="The Roxy").all() == []
+    assert db_session.query(Venue).filter_by(name="Benaroya Hall").count() == 1
+
+    retrieved_concerts = db_session.query(Concert).filter_by(venue=venue2, artist=artist).all()
+    assert len(retrieved_concerts) == 2
+    d1 = retrieved_concerts[0].date
+    d2 = retrieved_concerts[1].date
+    assert d1 is not None
+    assert d2 is not None
+    assert sorted([d1, d2]) == ["2000-11-05", "2000-11-06"]
