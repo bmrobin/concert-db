@@ -10,6 +10,18 @@ AddArtistScreen > Vertical {
     padding: 2;
 }
 
+AddVenueScreen {
+    align: center middle;
+}
+
+AddVenueScreen > Vertical {
+    width: 60;
+    height: 20;
+    border: thick $background 80%;
+    background: $surface;
+    padding: 2;
+}
+
 .title {
     text-align: center;
     text-style: bold;

@@ -3,46 +3,11 @@ from typing import ClassVar
 
 from sqlalchemy.orm import Session
 from textual.app import App, ComposeResult
-from textual.containers import Horizontal, Vertical
-from textual.screen import ModalScreen
-from textual.widgets import Button, DataTable, Footer, Header, Input, Label
+from textual.widgets import DataTable, Footer, Header
 
-from concert_db.models import Artist, Concert
+from concert_db.models import Concert, save_object
 from concert_db.settings import get_db_config
-
-
-class AddArtistScreen(ModalScreen[Artist | None]):
-    """
-    Screen for adding a new artist.
-    """
-
-    def compose(self) -> ComposeResult:
-        with Vertical():
-            yield Label("Add New Artist", classes="title")
-            yield Label("Artist Name:")
-            yield Input(placeholder="Enter artist name", id="artist_name")
-            yield Label("Genre:")
-            yield Input(placeholder="Enter genre", id="genre")
-            with Horizontal():
-                yield Button("Save", variant="primary", id="save")
-                yield Button("Cancel", variant="error", id="cancel")
-
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "save":
-            name_input = self.query_one("#artist_name", Input)
-            genre_input = self.query_one("#genre", Input)
-
-            name = name_input.value.strip()
-            genre = genre_input.value.strip()
-
-            if name and genre:
-                artist = Artist(name=name, genre=genre)
-                self.dismiss(artist)
-            else:
-                # Could add validation message here
-                pass
-        elif event.button.id == "cancel":
-            self.dismiss(None)
+from concert_db.ui import AddArtistScreen, AddVenueScreen
 
 
 class ConcertDbApp(App):
@@ -75,36 +40,29 @@ class ConcertDbApp(App):
         table.clear(columns=True)
         table.add_columns("ID", "Artist", "Venue", "Date")
 
-        concerts = (
+        concerts: list[Concert] = (
+            # TODO: not sure if i need to join to these or if sqlalchemy will handle it for me implicitly?
             # self.db_session.query(Concert).join(Artist).outerjoin(Venue).order_by(Concert.date.nulls_last()).all()
             self.db_session.query(Concert).order_by(Concert.date.nulls_last()).all()
         )
 
-        for concert in concerts:
-            table.add_row(
-                str(concert.id),
-                concert.artist.name if concert.artist else "N/A",
-                concert.venue.name if concert.venue else "N/A",
-                concert.date or "N/A",
-            )
+        table.add_rows(
+            [
+                (
+                    concert.id,
+                    concert.artist.name,
+                    concert.venue.name,
+                    concert.date or "n/a",
+                )
+                for concert in concerts
+            ]
+        )
 
     def action_add_artist(self) -> None:
-        def handle_artist_result(artist: Artist | None) -> None:
-            if artist:
-                try:
-                    self.db_session.add(artist)
-                    self.db_session.commit()
-                    self.load_concerts()
-                    self.notify(f"Artist '{artist.name}' added successfully!")
-                except Exception as e:
-                    self.db_session.rollback()
-                    self.notify(f"Error adding artist: {e!s}", severity="error")
-
-        self.push_screen(AddArtistScreen(), handle_artist_result)
+        self.push_screen(AddArtistScreen(), lambda artist: save_object(artist, self.db_session))
 
     def action_add_venue(self) -> None:
-        # TODO
-        self.notify("Add venue not implemented yet")
+        self.push_screen(AddVenueScreen(), lambda venue: save_object(venue, self.db_session))
 
     def action_add_concert(self) -> None:
         # TODO

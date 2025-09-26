@@ -1,7 +1,7 @@
 from typing import Optional
 
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
@@ -13,10 +13,10 @@ class Concert(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     artist_id: Mapped[int] = mapped_column(ForeignKey("artists.id"))
-    venue_id: Mapped[Optional[int]] = mapped_column(ForeignKey("venues.id"))
+    venue_id: Mapped[int] = mapped_column(ForeignKey("venues.id"))
     date: Mapped[Optional[str]]
     artist: Mapped["Artist"] = relationship(back_populates="concerts")
-    venue: Mapped[Optional["Venue"]] = relationship(back_populates="concerts")
+    venue: Mapped["Venue"] = relationship(back_populates="concerts")
 
 
 class Artist(Base):
@@ -30,8 +30,23 @@ class Artist(Base):
 
 class Venue(Base):
     __tablename__ = "venues"
+    __table_args__ = (UniqueConstraint("name", "location", name="unique_name_location"),)
+
+    # TODO: add unique-together constraint on name + location
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str]
     location: Mapped[str]
     concerts: Mapped[list["Concert"]] = relationship(back_populates="venue")
+
+
+def save_object(obj: Base | None, db_session: Session) -> None:
+    # TODO: accept iterable of objects
+    if obj:
+        try:
+            db_session.add(obj)
+            db_session.commit()
+        except Exception as exc:
+            print(f"Error saving object: {exc}")
+            db_session.rollback()
+            raise exc

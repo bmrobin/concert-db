@@ -1,6 +1,7 @@
+import pytest
 from sqlalchemy.orm import Session
 
-from concert_db.models import Artist, Concert, Venue
+from concert_db.models import Artist, Concert, Venue, save_object
 
 
 def test_database_isolation_between_tests(db_session: Session):
@@ -15,8 +16,7 @@ def test_database_isolation_between_tests(db_session: Session):
 
 def test_create_artist(db_session: Session):
     artist = Artist(name="The Beatles", genre="Rock")
-    db_session.add(artist)
-    db_session.commit()
+    save_object(artist, db_session)
 
     retrieved_artist = db_session.query(Artist).filter_by(name="The Beatles").first()
     assert retrieved_artist is not None
@@ -27,8 +27,7 @@ def test_create_artist(db_session: Session):
 
 def test_create_venue(db_session: Session):
     venue = Venue(name="Madison Square Garden", location="New York, NY")
-    db_session.add(venue)
-    db_session.commit()
+    save_object(venue, db_session)
 
     retrieved_venue = db_session.query(Venue).filter_by(name="Madison Square Garden").first()
     assert retrieved_venue is not None
@@ -37,17 +36,24 @@ def test_create_venue(db_session: Session):
     assert retrieved_venue.id is not None
 
 
+def test_venue_unique_contraint(db_session: Session):
+    venue = Venue(name="Red Rocks Amphitheatre", location="Morrison, CO")
+    save_object(venue, db_session)
+
+    with pytest.raises(Exception, match="UNIQUE constraint failed\\: venues\\.name, venues\\.location"):
+        duplicate_venue = Venue(name="Red Rocks Amphitheatre", location="Morrison, CO")
+        save_object(duplicate_venue, db_session)
+
+
 def test_create_concert_with_relationships(db_session: Session):
     artist = Artist(name="Led Zeppelin", genre="Rock")
     venue = Venue(name="Wembley Stadium", location="London, UK")
 
-    db_session.add(artist)
-    db_session.add(venue)
-    db_session.commit()
+    save_object(artist, db_session)
+    save_object(venue, db_session)
 
     concert = Concert(artist=artist, venue=venue, date="1975-05-24")
-    db_session.add(concert)
-    db_session.commit()
+    save_object(concert, db_session)
 
     retrieved_concert = db_session.query(Concert).first()
     assert retrieved_concert is not None
@@ -59,15 +65,15 @@ def test_create_concert_with_relationships(db_session: Session):
 
 def test_concerts_relationship(db_session: Session):
     artist = Artist(name="Pink Floyd", genre="Progressive Rock")
-    db_session.add(artist)
-    db_session.commit()
+    venue = Venue(name="Pompeii Amphitheatre", location="Pompeii, Italy")
+    save_object(artist, db_session)
+    save_object(venue, db_session)
 
-    concert1 = Concert(artist=artist, date="1973-03-01")
-    concert2 = Concert(artist=artist, date="1975-09-15")
+    concert1 = Concert(artist=artist, venue=venue, date="1973-03-01")
+    concert2 = Concert(artist=artist, venue=venue, date="1975-09-15")
 
-    db_session.add(concert1)
-    db_session.add(concert2)
-    db_session.commit()
+    save_object(concert1, db_session)
+    save_object(concert2, db_session)
 
     retrieved_artist = db_session.query(Artist).filter_by(name="Pink Floyd").first()
     assert retrieved_artist is not None
@@ -82,22 +88,19 @@ def test_concerts_relationship(db_session: Session):
 def test_venues_relationship(db_session: Session):
     venue1 = Venue(name="Benaroya Hall", location="Seattle, WA")
     venue2 = Venue(name="Key Arena", location="Seattle, WA")
-    db_session.add(venue1)
-    db_session.add(venue2)
-    db_session.commit()
+    save_object(venue1, db_session)
+    save_object(venue2, db_session)
 
     artist = Artist(name="Pearl Jam", genre="Rock")
-    db_session.add(artist)
-    db_session.commit()
+    save_object(artist, db_session)
 
     concert1 = Concert(artist=artist, venue=venue1, date="2003-10-22")
     concert2 = Concert(artist=artist, venue=venue2, date="2000-11-06")
     concert3 = Concert(artist=artist, venue=venue2, date="2000-11-05")
 
-    db_session.add(concert1)
-    db_session.add(concert2)
-    db_session.add(concert3)
-    db_session.commit()
+    save_object(concert1, db_session)
+    save_object(concert2, db_session)
+    save_object(concert3, db_session)
 
     assert db_session.query(Venue).filter_by(name="The Roxy").all() == []
     assert db_session.query(Venue).filter_by(name="Benaroya Hall").count() == 1
