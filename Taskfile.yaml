@@ -6,11 +6,17 @@ tasks:
     cmds:
       - ruff format
       - ruff check --fix
-      # TODO: add type checking.  `ty` failed to catch known errors, `mypy` speed is a concern.
+      - mypy concert_db/ tests/
 
   test:
     desc: 'Run tests'
     cmd: pytest
+
+  app:
+    env:
+      ENVIRONMENT: development
+    desc: 'Run the application'
+    cmd: python -m concert_db.app
 
   all:
     desc: 'Run all checks'

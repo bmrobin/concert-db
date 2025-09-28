@@ -20,7 +20,7 @@ class ArtistScreen(Screen):
 
     def __init__(self, db_session: Session) -> None:
         self.db_session = db_session
-        self._artists = []
+        self._artists: list[Artist] = []
         super().__init__()
 
     def compose(self) -> ComposeResult:

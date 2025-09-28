@@ -12,6 +12,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ipython>=9.5.0",
+    "mypy>=1.18.2",
     "pytest>=8.4.2",
     "pytest-env>=1.1.5",
 ]
@@ -28,3 +29,11 @@ addopts = "-v"
 
 [tool.pytest_env]
 ENVIRONMENT = "test"
+
+[tool.pyrefly]
+project-includes = ["**/*"]
+project-excludes = [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/*venv/**/*",
+]
