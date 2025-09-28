@@ -3,26 +3,33 @@ from typing import ClassVar
 
 from sqlalchemy.orm import Session
 from textual.app import App, ComposeResult
+from textual.binding import Binding
 from textual.widgets import DataTable, Footer, Header
 
-from concert_db.models import Concert, save_objects
+from concert_db.models import Concert
 from concert_db.settings import get_db_config
-from concert_db.ui import AddArtistScreen, AddVenueScreen
+from concert_db.ui import ArtistScreen, VenueScreen
 
 
 class ConcertDbApp(App):
     CSS_PATH = "app.tcss"
 
     BINDINGS: ClassVar = [
-        ("a", "add_artist", "Add Artist"),
-        ("v", "add_venue", "Add Venue"),
-        ("c", "add_concert", "Add Concert"),
-        ("r", "refresh", "Refresh"),
+        Binding("a", "show_artists", "Artists"),
+        Binding("v", "show_venues", "Venues"),
+        # Binding("c", "add_concert", "Add Concert"),
+        Binding("r", "refresh", "Refresh"),
     ]
 
     def __init__(self, db_session: Session):
         self.db_session = db_session
         super().__init__()
+
+    def action_show_artists(self) -> None:
+        self.push_screen(ArtistScreen(self.db_session))
+
+    def action_show_venues(self) -> None:
+        self.push_screen(VenueScreen(self.db_session))
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -57,12 +64,6 @@ class ConcertDbApp(App):
                 for concert in concerts
             ]
         )
-
-    def action_add_artist(self) -> None:
-        self.push_screen(AddArtistScreen(), lambda artist: save_objects((artist,), self.db_session, self.notify))
-
-    def action_add_venue(self) -> None:
-        self.push_screen(AddVenueScreen(), lambda venue: save_objects((venue,), self.db_session, self.notify))
 
     def action_add_concert(self) -> None:
         # TODO

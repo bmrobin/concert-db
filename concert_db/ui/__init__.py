@@ -1,4 +1,7 @@
-from .add_artist import AddArtistScreen
-from .add_venue import AddVenueScreen
+from .artist import ArtistScreen
+from .venue import VenueScreen
 
-__all__ = ["AddArtistScreen", "AddVenueScreen"]
+__all__ = [
+    "ArtistScreen",
+    "VenueScreen",
+]
