@@ -1,0 +1,17 @@
+version: '3.8'
+
+tasks:
+  lint:
+    desc: 'Lint and type check the code'
+    cmds:
+      - ruff format
+      - ruff check --fix
+      # TODO: add type checking.  `ty` failed to catch known errors, `mypy` speed is a concern.
+
+  test:
+    desc: 'Run tests'
+    cmd: pytest
+
+  all:
+    desc: 'Run all checks'
+    deps: [lint, test]

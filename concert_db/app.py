@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from textual.app import App, ComposeResult
 from textual.widgets import DataTable, Footer, Header
 
-from concert_db.models import Concert, save_object
+from concert_db.models import Concert, save_objects
 from concert_db.settings import get_db_config
 from concert_db.ui import AddArtistScreen, AddVenueScreen
 
@@ -59,10 +59,10 @@ class ConcertDbApp(App):
         )
 
     def action_add_artist(self) -> None:
-        self.push_screen(AddArtistScreen(), lambda artist: save_object(artist, self.db_session))
+        self.push_screen(AddArtistScreen(), lambda artist: save_objects((artist,), self.db_session, self.notify))
 
     def action_add_venue(self) -> None:
-        self.push_screen(AddVenueScreen(), lambda venue: save_object(venue, self.db_session))
+        self.push_screen(AddVenueScreen(), lambda venue: save_objects((venue,), self.db_session, self.notify))
 
     def action_add_concert(self) -> None:
         # TODO

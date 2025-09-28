@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Callable, Iterable, Optional
 
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship
@@ -40,13 +40,16 @@ class Venue(Base):
     concerts: Mapped[list["Concert"]] = relationship(back_populates="venue")
 
 
-def save_object(obj: Base | None, db_session: Session) -> None:
-    # TODO: accept iterable of objects
-    if obj:
+def save_objects(objs: Iterable[Base | None], db_session: Session, notify_callback: Callable | None = None) -> None:
+    if objs:  # ignore empty iterables
         try:
-            db_session.add(obj)
+            for obj in objs:
+                if obj is not None:  # skip any None obj
+                    db_session.add(obj)
             db_session.commit()
+            if callable(notify_callback):
+                notify_callback("Saved successfully!", severity="information")
         except Exception as exc:
-            print(f"Error saving object: {exc}")
             db_session.rollback()
-            raise exc
+            if callable(notify_callback):
+                notify_callback(f"Error saving object: {exc}", severity="error")
