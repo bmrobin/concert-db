@@ -24,6 +24,11 @@ AddVenueScreen > Vertical {
 
 .title {
     text-align: center;
-    text-style: bold;
+    text-style: italic;
     margin-bottom: 1;
+}
+
+DataTable {
+    color: green;
+    text-style: italic;
 }

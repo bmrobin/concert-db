@@ -12,12 +12,18 @@ tasks:
     desc: 'Run tests'
     cmd: pytest
 
+  all:
+    desc: 'Run all checks'
+    deps: [lint, test]
+
   app:
     env:
       ENVIRONMENT: development
     desc: 'Run the application'
     cmd: python -m concert_db.app
 
-  all:
-    desc: 'Run all checks'
-    deps: [lint, test]
+  seed:
+    env:
+      ENVIRONMENT: development
+    desc: 'Seed the database with dummy data'
+    cmd: python add_sample_data.py
