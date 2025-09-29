@@ -25,7 +25,7 @@ class ArtistScreen(Screen):
 
     def compose(self) -> ComposeResult:
         yield Header()
-        yield DataTable(id="artists_table", zebra_stripes=True, cursor_type="row")
+        yield DataTable(id="artists_table", zebra_stripes=True, cursor_type="row", classes="section")
         yield Footer()
 
     def on_mount(self) -> None:

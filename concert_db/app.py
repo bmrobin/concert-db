@@ -33,10 +33,11 @@ class ConcertDbApp(App):
 
     def compose(self) -> ComposeResult:
         yield Header()
-        yield DataTable(id="concerts_table", zebra_stripes=True)
+        yield DataTable(id="concerts_table", zebra_stripes=True, classes="section")
         yield Footer()
 
     def on_mount(self) -> None:
+        self.theme = "dracula"
         self.load_concerts()
 
     def load_concerts(self) -> None:
