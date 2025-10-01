@@ -4,6 +4,7 @@ from typing import ClassVar
 from sqlalchemy.orm import Session
 from textual.app import App, ComposeResult
 from textual.binding import Binding
+from textual.containers import Horizontal
 from textual.widgets import DataTable, Footer, Header
 
 from concert_db.models import Concert
@@ -15,8 +16,6 @@ class ConcertDbApp(App):
     CSS_PATH = "app.tcss"
 
     BINDINGS: ClassVar = [
-        Binding("a", "show_artists", "Artists"),
-        Binding("v", "show_venues", "Venues"),
         # Binding("c", "add_concert", "Add Concert"),
         Binding("r", "refresh", "Refresh"),
     ]
@@ -25,15 +24,12 @@ class ConcertDbApp(App):
         self.db_session = db_session
         super().__init__()
 
-    def action_show_artists(self) -> None:
-        self.push_screen(ArtistScreen(self.db_session))
-
-    def action_show_venues(self) -> None:
-        self.push_screen(VenueScreen(self.db_session))
-
     def compose(self) -> ComposeResult:
         yield Header()
-        yield DataTable(id="concerts_table", zebra_stripes=True, classes="section")
+        yield DataTable(id="concerts_table", zebra_stripes=True, classes="concert-section")
+        with Horizontal():
+            yield ArtistScreen(self.db_session)
+            yield VenueScreen(self.db_session)
         yield Footer()
 
     def on_mount(self) -> None:

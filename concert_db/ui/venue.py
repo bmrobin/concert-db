@@ -4,15 +4,14 @@ from sqlalchemy.orm import Session
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
-from textual.screen import ModalScreen, Screen
-from textual.widgets import Button, DataTable, Footer, Header, Input, Label
+from textual.screen import ModalScreen
+from textual.widgets import Button, DataTable, Input, Label
 
 from concert_db.models import Venue, save_objects
 
 
-class VenueScreen(Screen):
+class VenueScreen(Vertical):
     BINDINGS: ClassVar = [
-        Binding("escape", "app.pop_screen", "Back"),
         Binding("a", "add_venue", "Add Venue"),
         Binding("e", "edit_venue", "Edit Venue"),
         Binding("r", "refresh", "Refresh"),
@@ -24,11 +23,11 @@ class VenueScreen(Screen):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        yield Header()
         yield DataTable(id="venues_table", zebra_stripes=True, cursor_type="row", classes="section")
-        yield Footer()
 
     def on_mount(self) -> None:
+        table = self.query_one("#venues_table", DataTable)
+        table.border_title = "Venues"
         self.load_venues()
 
     def load_venues(self) -> None:

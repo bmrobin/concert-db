@@ -4,15 +4,14 @@ from sqlalchemy.orm import Session
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
-from textual.screen import ModalScreen, Screen
-from textual.widgets import Button, DataTable, Footer, Header, Input, Label
+from textual.screen import ModalScreen
+from textual.widgets import Button, DataTable, Input, Label
 
 from concert_db.models import Artist, save_objects
 
 
-class ArtistScreen(Screen):
+class ArtistScreen(Vertical):
     BINDINGS: ClassVar = [
-        Binding("escape", "app.pop_screen", "Back"),
         Binding("a", "add_artist", "Add Artist"),
         Binding("e", "edit_artist", "Edit Artist"),
         Binding("r", "refresh", "Refresh"),
@@ -24,11 +23,11 @@ class ArtistScreen(Screen):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        yield Header()
         yield DataTable(id="artists_table", zebra_stripes=True, cursor_type="row", classes="section")
-        yield Footer()
 
     def on_mount(self) -> None:
+        table = self.query_one("#artists_table", DataTable)
+        table.border_title = "Artists"
         self.load_artists()
 
     def load_artists(self) -> None:
