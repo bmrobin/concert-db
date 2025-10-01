@@ -1,7 +1,9 @@
-from typing import Callable, Iterable, Optional
+from typing import Iterable, Optional
 
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship
+
+from concert_db.types import Notification
 
 
 class Base(DeclarativeBase):
@@ -32,15 +34,13 @@ class Venue(Base):
     __tablename__ = "venues"
     __table_args__ = (UniqueConstraint("name", "location", name="unique_name_location"),)
 
-    # TODO: add unique-together constraint on name + location
-
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str]
     location: Mapped[str]
     concerts: Mapped[list["Concert"]] = relationship(back_populates="venue")
 
 
-def save_objects(objs: Iterable[Base | None], db_session: Session, notify_callback: Callable | None = None) -> None:
+def save_objects(objs: Iterable[Base | None], db_session: Session, notify_callback: Notification | None = None) -> None:
     if objs:  # ignore empty iterables
         try:
             for obj in objs:
