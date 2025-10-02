@@ -134,9 +134,12 @@ class EditVenueScreen(AddVenueScreen):
             name_input = self.query_one("#venue_name", Input)
             location_input = self.query_one("#location", Input)
 
+            # TODO: add formatting here to title-case location (leave venue as-is).
+            # TODO: add tests for values, plus for location matching "City, ST".
             name = name_input.value.strip()
             location = location_input.value.strip()
 
+            # TODO: add test to ensure both values are provided.
             if name and location:
                 self.venue.name = name
                 self.venue.location = location

@@ -134,6 +134,8 @@ class EditArtistScreen(AddArtistScreen):
             name_input = self.query_one("#artist_name", Input)
             genre_input = self.query_one("#genre", Input)
 
+            # TODO: add formatting here to title-case genre (leave artist as-is).
+            # TODO: add tests and validation checking here.
             name = name_input.value.strip()
             genre = genre_input.value.strip()
 
