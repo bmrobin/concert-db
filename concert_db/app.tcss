@@ -29,7 +29,7 @@ AddVenueScreen > Vertical {
 }
 
 .concert-section {
-  height: 30;
+  height: 69%;
   border: round $accent 40%;
   border-title-color: $text-accent 50%;
   border-title-align: right;
@@ -43,7 +43,7 @@ AddVenueScreen > Vertical {
 
 .section {
   dock: bottom;
-  height: 10;
+  height: 100%;
   border: round $accent 40%;
   border-title-color: $text-accent 50%;
   border-title-align: right;
