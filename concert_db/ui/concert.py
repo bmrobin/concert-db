@@ -20,7 +20,7 @@ class Concerts(Horizontal):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        yield DataTable(id="concerts_table", zebra_stripes=True, classes="concert-section")
+        yield DataTable(id="concerts_table", zebra_stripes=True)
 
     def on_mount(self) -> None:
         self.load_concerts()
