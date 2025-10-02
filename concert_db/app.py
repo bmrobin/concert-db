@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal
-from textual.widgets import DataTable, Footer, Header
+from textual.widgets import DataTable, Footer, Header, Rule
 
 from concert_db.models import Concert
 from concert_db.settings import get_db_config
@@ -27,8 +27,10 @@ class ConcertDbApp(App):
     def compose(self) -> ComposeResult:
         yield Header()
         yield DataTable(id="concerts_table", zebra_stripes=True, classes="concert-section")
+        yield Rule(line_style="dashed")
         with Horizontal():
             yield ArtistScreen(self.db_session)
+            yield Rule(line_style="dashed", orientation="vertical")
             yield VenueScreen(self.db_session)
         yield Footer()
 

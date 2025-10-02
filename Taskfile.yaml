@@ -26,4 +26,6 @@ tasks:
     env:
       ENVIRONMENT: development
     desc: 'Seed the database with dummy data'
-    cmd: python add_sample_data.py
+    cmds:
+      - rm concert_db.sqlite
+      - python add_sample_data.py
