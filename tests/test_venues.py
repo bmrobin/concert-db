@@ -57,7 +57,7 @@ def test_add_venue_with_valid_data():
     event.button = button
     screen.on_button_pressed(event)
 
-    # Verify venue was created with trimmed values
+    # verify venue was created with trimmed values
     screen.dismiss.assert_called_once()
     venue = screen.dismiss.call_args[0][0]
     assert isinstance(venue, Venue)
