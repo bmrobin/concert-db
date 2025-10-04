@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy.orm import Session
 
 from concert_db.models import Venue, save_objects
-from concert_db.ui.venue import AddVenueScreen, EditVenueScreen, VenueScreen
+from concert_db.ui.venue import AddVenueScreen, EditVenueScreen, VenueScreen, format_input
 
 
 def test_load_venues(db_session: Session):
@@ -181,7 +181,7 @@ def test_edit_venue_with_empty_values(name: str, location: str):
 )
 def test_venue_location_regex_failure(location: str):
     with pytest.raises(ValueError):
-        AddVenueScreen.format_input("generic name", location)
+        format_input("generic name", location)
 
 
 @pytest.mark.parametrize(
@@ -200,7 +200,7 @@ def test_venue_location_regex_failure(location: str):
 )
 def test_venue_location_regex_success(location: str):
     with does_not_raise():
-        AddVenueScreen.format_input("generic name", location)
+        format_input("generic name", location)
 
 
 @pytest.mark.parametrize(

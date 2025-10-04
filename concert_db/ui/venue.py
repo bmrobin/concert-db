@@ -72,6 +72,16 @@ class VenueScreen(Vertical):
         self.app.notify("Venues table refreshed!")
 
 
+def format_input(name: str, location: str) -> str:
+    error_msg = "Location must be format 'City, ST'"
+    if name and location:
+        pattern = re.compile(r"^([A-Z\.].+[a-zA-Z].*), [A-Z][A-Z]$")
+        if pattern.search(location):
+            _name, state = location.split(", ")
+            return f"{_name.title()}, {state}"
+    raise ValueError(error_msg)
+
+
 class AddVenueScreen(ModalScreen[Venue | None]):
     """
     Screen for adding a new venue.
@@ -96,28 +106,19 @@ class AddVenueScreen(ModalScreen[Venue | None]):
             name = name_input.value.strip()
             location = location_input.value.strip()
 
-            if _location := self.format_input(name, location):
-                venue = Venue(name=name, location=_location)
-                self.dismiss(venue)
-            else:
-                # self.app.notify("Invalid name & location", severity="error")
-                # self.dismiss(None)
-                pass
+            try:
+                if _location := format_input(name, location):
+                    venue = Venue(name=name, location=_location)
+                    self.dismiss(venue)
+            except ValueError:
+                self.app.notify("Invalid name & location", severity="error")
+                self.dismiss(None)
+
         elif event.button.id == "cancel":
             self.dismiss(None)
 
-    @staticmethod
-    def format_input(name: str, location: str) -> str:
-        error_msg = "Location must be format 'City, ST'"
-        if name and location:
-            pattern = re.compile(r"^([A-Z\.].+[a-zA-Z].*), [A-Z][A-Z]$")
-            if pattern.search(location):
-                _name, state = location.split(", ")
-                return f"{_name.title()}, {state}"
-        raise ValueError(error_msg)
 
-
-class EditVenueScreen(AddVenueScreen):
+class EditVenueScreen(ModalScreen[Venue | None]):
     """
     Screen for editing an existing venue.
     """
@@ -149,13 +150,14 @@ class EditVenueScreen(AddVenueScreen):
             name = name_input.value.strip()
             location = location_input.value.strip()
 
-            if _location := self.format_input(name, location):
-                self.venue.name = name
-                self.venue.location = _location
-                self.dismiss(self.venue)
-            else:
-                # self.app.notify("Invalid name & location", severity="error")
-                # self.dismiss(None)
-                pass
+            try:
+                if _location := format_input(name, location):
+                    self.venue.name = name
+                    self.venue.location = _location
+                    self.dismiss(self.venue)
+            except ValueError:
+                self.app.notify("Invalid name & location", severity="error")
+                self.dismiss(None)
+
         elif event.button.id == "cancel":
             self.dismiss(None)

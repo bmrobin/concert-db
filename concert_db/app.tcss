@@ -1,20 +1,8 @@
-AddArtistScreen {
+ModalScreen {
     align: center middle;
 }
 
-AddArtistScreen > Vertical {
-    width: 60;
-    height: 20;
-    border: thick $background 80%;
-    background: $surface;
-    padding: 2;
-}
-
-AddVenueScreen {
-    align: center middle;
-}
-
-AddVenueScreen > Vertical {
+ModalScreen > Vertical {
     width: 60;
     height: 20;
     border: thick $background 80%;

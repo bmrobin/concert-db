@@ -105,7 +105,7 @@ class AddArtistScreen(ModalScreen[Artist | None]):
             self.dismiss(None)
 
 
-class EditArtistScreen(AddArtistScreen):
+class EditArtistScreen(ModalScreen[Artist | None]):
     """
     Screen for editing an existing artist.
     """
