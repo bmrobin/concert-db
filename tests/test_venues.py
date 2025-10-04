@@ -1,3 +1,4 @@
+from contextlib import nullcontext as does_not_raise
 from unittest.mock import Mock
 
 import pytest
@@ -88,9 +89,10 @@ def test_add_venue_with_empty_values(name: str, location: str):
     button.id = "save"
     event = Mock()
     event.button = button
-    screen.on_button_pressed(event)
 
     # empty value should not save
+    with pytest.raises(ValueError):
+        screen.on_button_pressed(event)
     screen.dismiss.assert_not_called()
 
 
@@ -107,7 +109,7 @@ def test_add_venue_cancel():
 
 
 def test_edit_venue_with_valid_data():
-    original_venue = Venue(name="Original Name", location="Original Location")
+    original_venue = Venue(name="Original Name", location="Original Location, OL")
     screen = EditVenueScreen(original_venue)
     assert screen.venue == original_venue
 
@@ -140,7 +142,7 @@ def test_edit_venue_with_valid_data():
     ],
 )
 def test_edit_venue_with_empty_values(name: str, location: str):
-    original_venue = Venue(name="Original Name", location="Original Location")
+    original_venue = Venue(name="Original Name", location="Original Location, OL")
     screen = EditVenueScreen(original_venue)
 
     name_input = Mock()
@@ -155,49 +157,50 @@ def test_edit_venue_with_empty_values(name: str, location: str):
     button.id = "save"
     event = Mock()
     event.button = button
-    screen.on_button_pressed(event)
+
+    with pytest.raises(ValueError):
+        screen.on_button_pressed(event)
 
     # should not modify original venue or dismiss
     assert original_venue.name == "Original Name"
-    assert original_venue.location == "Original Location"
+    assert original_venue.location == "Original Location, OL"
     screen.dismiss.assert_not_called()
 
 
 @pytest.mark.parametrize(
-    "location_input,expected_location",
+    "location",
     [
-        ("atlanta, ga", "Atlanta, GA"),
-        ("new york, ny", "New York, NY"),
-        ("los angeles, ca", "Los Angeles, CA"),
-        ("CHICAGO, IL", "Chicago, IL"),
-        ("sAn FrAnCiScO, cA", "San Francisco, CA"),
-        ("richmond, va", "Richmond, VA"),
-        ("st. louis, mo", "St. Louis, MO"),
-        ("las vegas, nv", "Las Vegas, NV"),
+        "atlanta, ga",
+        "new york, ny",
+        "los angeles, ca",
+        "sAn FrAnCiScO, cA",
+        "richmond, va",
+        "st. louis, mo",
+        "las vegas, nv",
     ],
 )
-def test_location_title_case_formatting(location_input, expected_location):
-    # TODO: this is TDD for the behavior but needs actual implementation.
-    original_venue = Venue(name="Test Venue", location="Original Location")
-    screen = EditVenueScreen(original_venue)
+def test_venue_location_regex_failure(location: str):
+    with pytest.raises(ValueError):
+        AddVenueScreen.format_input("generic name", location)
 
-    name_input = Mock()
-    name_input.value = "Test Venue"  # venue name should remain as-is
-    location_input_mock = Mock()
-    location_input_mock.value = location_input
 
-    screen.query_one = mock_query_one(name_input, location_input_mock)
-    screen.dismiss = Mock()
-
-    button = Mock()
-    button.id = "save"
-    event = Mock()
-    event.button = button
-    screen.on_button_pressed(event)
-
-    assert original_venue.location == location_input
-    with pytest.raises(AssertionError):
-        assert original_venue.location == expected_location
+@pytest.mark.parametrize(
+    "location",
+    [
+        "Atlanta, GA",
+        "New York, NY",
+        "Los Angeles, CA",
+        "Chicago, IL",
+        "CHICAGO, IL",
+        "San Francisco, CA",
+        "Richmond, VA",
+        "St. Louis, MO",
+        "Las Vegas, NV",
+    ],
+)
+def test_venue_location_regex_success(location: str):
+    with does_not_raise():
+        AddVenueScreen.format_input("generic name", location)
 
 
 @pytest.mark.parametrize(
@@ -218,7 +221,7 @@ def test_location_title_case_formatting(location_input, expected_location):
     ],
 )
 def test_location_format_validation(location, is_valid):
-    original_venue = Venue(name="Test Venue", location="Original Location")
+    original_venue = Venue(name="Test Venue", location="Original Location, OL")
     screen = EditVenueScreen(original_venue)
 
     name_input = Mock()
@@ -233,27 +236,20 @@ def test_location_format_validation(location, is_valid):
     button.id = "save"
     event = Mock()
     event.button = button
-    screen.on_button_pressed(event)
 
     if is_valid and location.strip():
         # Should update venue and dismiss
         # TODO: This currently doesn't validate format, so all non-empty locations pass
+        screen.on_button_pressed(event)
         assert original_venue.location == location
         screen.dismiss.assert_called_once_with(original_venue)
     else:
-        # Should not update venue or dismiss for invalid/empty locations
-        if not location.strip():
-            # Empty location case already handled by existing validation
-            assert original_venue.location == "Original Location"
-            screen.dismiss.assert_not_called()
-        else:
-            # TODO: Format validation not yet implemented
-            # When implemented, invalid formats should not update/dismiss
-            pass
+        with pytest.raises(ValueError):
+            screen.on_button_pressed(event)
 
 
 def test_edit_venue_cancel():
-    original_venue = Venue(name="Original Name", location="Original Location")
+    original_venue = Venue(name="Original Name", location="Original Location, OL")
     screen = EditVenueScreen(original_venue)
     screen.dismiss = Mock()
     button = Mock()
@@ -263,5 +259,5 @@ def test_edit_venue_cancel():
     screen.on_button_pressed(event)
 
     assert original_venue.name == "Original Name"
-    assert original_venue.location == "Original Location"
+    assert original_venue.location == "Original Location, OL"
     screen.dismiss.assert_called_once_with(None)

@@ -1,3 +1,4 @@
+import re
 from typing import ClassVar
 
 from sqlalchemy.orm import Session
@@ -95,14 +96,25 @@ class AddVenueScreen(ModalScreen[Venue | None]):
             name = name_input.value.strip()
             location = location_input.value.strip()
 
-            if name and location:
-                venue = Venue(name=name, location=location)
+            if _location := self.format_input(name, location):
+                venue = Venue(name=name, location=_location)
                 self.dismiss(venue)
             else:
-                # Could add validation message here
+                # self.app.notify("Invalid name & location", severity="error")
+                # self.dismiss(None)
                 pass
         elif event.button.id == "cancel":
             self.dismiss(None)
+
+    @staticmethod
+    def format_input(name: str, location: str) -> str:
+        error_msg = "Location must be format 'City, ST'"
+        if name and location:
+            pattern = re.compile(r"^([A-Z\.].+[a-zA-Z].*), [A-Z][A-Z]$")
+            if pattern.search(location):
+                _name, state = location.split(", ")
+                return f"{_name.title()}, {state}"
+        raise ValueError(error_msg)
 
 
 class EditVenueScreen(AddVenueScreen):
@@ -134,18 +146,16 @@ class EditVenueScreen(AddVenueScreen):
             name_input = self.query_one("#venue_name", Input)
             location_input = self.query_one("#location", Input)
 
-            # TODO: add formatting here to title-case location (leave venue as-is).
-            # TODO: add tests for values, plus for location matching "City, ST".
             name = name_input.value.strip()
             location = location_input.value.strip()
 
-            # TODO: add test to ensure both values are provided.
-            if name and location:
+            if _location := self.format_input(name, location):
                 self.venue.name = name
-                self.venue.location = location
+                self.venue.location = _location
                 self.dismiss(self.venue)
             else:
-                # Could add validation message here
+                # self.app.notify("Invalid name & location", severity="error")
+                # self.dismiss(None)
                 pass
         elif event.button.id == "cancel":
             self.dismiss(None)
