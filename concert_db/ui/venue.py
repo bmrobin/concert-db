@@ -96,7 +96,7 @@ class AddVenueScreen(ModalScreen[Venue | None]):
             yield Input(placeholder="Enter location", id="location")
             with Horizontal():
                 yield Button("Save", variant="primary", id="save")
-                yield Button("Cancel", variant="error", id="cancel")
+                yield Button("Cancel", variant="default", id="cancel")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "save":
@@ -140,7 +140,7 @@ class EditVenueScreen(ModalScreen[Venue | None]):
             yield location_input
             with Horizontal():
                 yield Button("Save", variant="primary", id="save")
-                yield Button("Cancel", variant="error", id="cancel")
+                yield Button("Cancel", variant="default", id="cancel")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "save":

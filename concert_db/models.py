@@ -40,6 +40,8 @@ class Venue(Base):
     concerts: Mapped[list["Concert"]] = relationship(back_populates="venue")
 
 
+# TODO: decide if i want to keep this accepting a list of objs.
+# TODO: i really only use this in tests, so perhaps it's better served as a test util only.
 def save_objects(objs: Iterable[Base | None], db_session: Session, notify_callback: Notification | None = None) -> None:
     if objs:  # ignore empty iterables
         try:

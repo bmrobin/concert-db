@@ -3,10 +3,11 @@ from typing import ClassVar
 from sqlalchemy.orm import Session
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal
-from textual.widgets import DataTable
+from textual.containers import Horizontal, Vertical
+from textual.screen import ModalScreen
+from textual.widgets import Button, DataTable, Input, Label, Select
 
-from concert_db.models import Concert
+from concert_db.models import Artist, Concert, Venue, save_objects
 
 
 class Concerts(Horizontal):
@@ -51,9 +52,68 @@ class Concerts(Horizontal):
             ]
         )
 
+    def action_add_concert(self) -> None:
+        def handle_concert_result(concert: Concert | None) -> None:
+            if concert:
+                save_objects((concert,), self.db_session, self.app.notify)
+                self.load_concerts()
+
+        self.app.push_screen(AddConcertScreen(self.db_session), handle_concert_result)
+
     def action_refresh(self) -> None:
         """
         Refresh the concerts table.
         """
         self.load_concerts()
         self.notify("Table refreshed!")
+
+
+class AddConcertScreen(ModalScreen[Concert | None]):
+    """
+    Screen for adding a new concert.
+    """
+
+    def __init__(self, db_session: Session) -> None:
+        self.db_session = db_session
+        super().__init__()
+
+    def fetch_data(self) -> tuple[list[Artist], list[Venue]]:
+        artists = self.db_session.query(Artist).order_by(Artist.name).all()
+        venues = self.db_session.query(Venue).order_by(Venue.name).all()
+        return artists, venues
+
+    def compose(self) -> ComposeResult:
+        artists, venues = self.fetch_data()
+        with Vertical():
+            yield Label("Add New Concert", classes="title")
+            yield Label("Artist:")
+            yield Select.from_values(
+                [a.name for a in artists],
+                type_to_search=True,
+                allow_blank=False,
+                prompt="Select an artist",
+                id="artist-select",
+                compact=False,
+            )
+            yield Label("Venue:")
+            yield Select.from_values(
+                [v.name for v in venues],
+                type_to_search=True,
+                allow_blank=False,
+                prompt="Select a venue",
+                id="venue-select",
+                compact=False,
+            )
+            yield Label("Date (YYYY-MM-DD):")
+            yield Input(placeholder="Date", id="concert_date")
+            with Horizontal():
+                yield Button("Save", variant="primary", id="save")
+                yield Button("Cancel", variant="default", id="cancel")
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "save":
+            # TODO: implement validation and saving
+            self.dismiss(None)
+
+        elif event.button.id == "cancel":
+            self.dismiss(None)

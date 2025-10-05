@@ -3,7 +3,7 @@ from unittest.mock import Mock
 from sqlalchemy.orm import Session
 
 from concert_db.models import Artist, Concert, Venue, save_objects
-from concert_db.ui.concert import Concerts
+from concert_db.ui.concert import AddConcertScreen, Concerts
 
 
 def test_load_concerts(db_session: Session):
@@ -33,3 +33,23 @@ def test_load_concerts(db_session: Session):
             (4, "Perpetual Groove", "YMCA", "n/a"),
         ]
     )
+
+
+def test_fetch_data_empty(db_session: Session):
+    screen = AddConcertScreen(db_session)
+    assert screen.fetch_data() == ([], [])
+
+
+def test_fetch_data(db_session: Session):
+    v1 = Venue(name="Brown's Island", location="Richmond, VA")
+    v2 = Venue(name="Broadberry", location="Richmond, VA")
+    a1 = Artist(name="Michael Jackson", genre="Pop")
+    a2 = Artist(name="Madonna", genre="Pop")
+    save_objects((v1, v2, a1, a2), db_session, None)
+
+    screen = AddConcertScreen(db_session)
+    artists, venues = screen.fetch_data()
+
+    # verify ordering by name
+    assert artists == [a2, a1]
+    assert venues == [v2, v1]

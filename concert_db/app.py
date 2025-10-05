@@ -31,10 +31,6 @@ class ConcertDbApp(App):
     def on_mount(self) -> None:
         self.theme = "dracula"
 
-    def action_add_concert(self) -> None:
-        # TODO
-        self.notify("Add concert not implemented yet")
-
 
 if __name__ == "__main__":
     if os.getenv("ENVIRONMENT", None) is None:

@@ -85,7 +85,7 @@ class AddArtistScreen(ModalScreen[Artist | None]):
             yield Input(placeholder="Enter genre", id="genre")
             with Horizontal():
                 yield Button("Save", variant="primary", id="save")
-                yield Button("Cancel", variant="error", id="cancel")
+                yield Button("Cancel", variant="default", id="cancel")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "save":
@@ -127,7 +127,7 @@ class EditArtistScreen(ModalScreen[Artist | None]):
             yield genre_input
             with Horizontal():
                 yield Button("Save", variant="primary", id="save")
-                yield Button("Cancel", variant="error", id="cancel")
+                yield Button("Cancel", variant="default", id="cancel")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "save":
@@ -144,7 +144,7 @@ class EditArtistScreen(ModalScreen[Artist | None]):
                 self.artist.genre = genre
                 self.dismiss(self.artist)
             else:
-                # Could add validation message here
+                # TODO: show failure notification and dismiss modal.
                 pass
         elif event.button.id == "cancel":
             self.dismiss(None)

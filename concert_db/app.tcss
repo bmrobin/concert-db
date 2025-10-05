@@ -10,6 +10,19 @@ ModalScreen > Vertical {
     padding: 2;
 }
 
+AddConcertScreen > Vertical {
+    align: center middle;
+    width: 60;
+    height: 30;
+    border: thick $background 80%;
+    background: $surface;
+    padding: 2;
+
+    Horizontal {
+      align: center bottom;
+    }
+}
+
 .title {
     text-align: center;
     text-style: italic;
@@ -42,4 +55,9 @@ ModalScreen > Vertical {
     border-title-color: $foreground;
     border-title-style: b;
   }
+}
+
+#cancel {
+    background: white 60%;
+    color: black;
 }

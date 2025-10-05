@@ -25,7 +25,6 @@ select = ["SIM", "I", "ARG", "E", "W", "F", "RUF"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-v"
 
 [tool.pytest_env]
 ENVIRONMENT = "test"
