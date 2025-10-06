@@ -57,7 +57,7 @@ class DatabaseConfig:
         """
         Get a new database session.
         """
-        return self.sessionmaker()
+        return self.sessionmaker()  # type: ignore
 
     def get_session_generator(self) -> Generator[Session, None, None]:
         """

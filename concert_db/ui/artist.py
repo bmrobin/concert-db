@@ -47,9 +47,6 @@ class ArtistScreen(Vertical):
 
     def action_edit_artist(self) -> None:
         table = self.query_one("#artists_table", DataTable)
-        if table.cursor_row is None:
-            self.app.notify("Please select an artist to edit", severity="warning")
-            return
 
         # Get the artist from our stored list using the cursor row index
         row_index = table.cursor_row

@@ -9,7 +9,7 @@ from concert_db.ui.artist import AddArtistScreen, ArtistScreen, EditArtistScreen
 from .utils import save_objects
 
 
-def test_load_artists(db_session: Session):
+def test_load_artists(db_session: Session) -> None:
     a1 = Artist(name="Taylor Swift", genre="Pop")
     a2 = Artist(name="Jim James", genre="Folk")
     a3 = Artist(name="Beyoncé", genre="Pop")
@@ -19,7 +19,7 @@ def test_load_artists(db_session: Session):
     assert artist_ui._artists == []
 
     mock_table = Mock()
-    artist_ui.query_one = lambda *_args, **_kwargs: mock_table  # type: ignore[method-assign]
+    artist_ui.query_one = lambda *_args, **_kwargs: mock_table
     artist_ui.load_artists()
 
     mock_table.add_columns.assert_called_once_with("ID", "Name", "Genre", "Concerts")
@@ -39,7 +39,7 @@ def mock_query_one(name: str, genre: str) -> Mock:
     return Mock(side_effect=lambda selector, _: {"#artist_name": name, "#genre": genre}[selector])
 
 
-def test_add_artist_with_valid_data():
+def test_add_artist_with_valid_data() -> None:
     screen = AddArtistScreen()
 
     # pad with spaces to test trimming
@@ -72,7 +72,7 @@ def test_add_artist_with_valid_data():
         ("   ", "   "),
     ],
 )
-def test_add_artist_with_empty_values(name: str, genre: str):
+def test_add_artist_with_empty_values(name: str, genre: str) -> None:
     screen = AddArtistScreen()
 
     name_input = Mock()
@@ -80,8 +80,8 @@ def test_add_artist_with_empty_values(name: str, genre: str):
     genre_input = Mock()
     genre_input.value = genre
 
-    screen.query_one = mock_query_one(name_input, genre_input)  # type: ignore[method-assign]
-    screen.dismiss = Mock()  # type: ignore[method-assign]
+    screen.query_one = mock_query_one(name_input, genre_input)
+    screen.dismiss = Mock()
 
     button = Mock()
     button.id = "save"
@@ -93,7 +93,7 @@ def test_add_artist_with_empty_values(name: str, genre: str):
     screen.dismiss.assert_not_called()
 
 
-def test_add_artist_cancel():
+def test_add_artist_cancel() -> None:
     screen = AddArtistScreen()
     screen.dismiss = Mock()
     button = Mock()
@@ -105,7 +105,7 @@ def test_add_artist_cancel():
     screen.dismiss.assert_called_once_with(None)
 
 
-def test_edit_artist_with_valid_data():
+def test_edit_artist_with_valid_data() -> None:
     original_artist = Artist(name="Original Name", genre="Original Genre")
     screen = EditArtistScreen(original_artist)
     assert screen.artist == original_artist
@@ -138,7 +138,7 @@ def test_edit_artist_with_valid_data():
         ("   ", "   "),
     ],
 )
-def test_edit_artist_with_empty_values(name: str, genre: str):
+def test_edit_artist_with_empty_values(name: str, genre: str) -> None:
     original_artist = Artist(name="Original Name", genre="Original Genre")
     screen = EditArtistScreen(original_artist)
 
@@ -147,8 +147,8 @@ def test_edit_artist_with_empty_values(name: str, genre: str):
     genre_input = Mock()
     genre_input.value = genre
 
-    screen.query_one = mock_query_one(name_input, genre_input)  # type: ignore[method-assign]
-    screen.dismiss = Mock()  # type: ignore[method-assign]
+    screen.query_one = mock_query_one(name_input, genre_input)
+    screen.dismiss = Mock()
 
     button = Mock()
     button.id = "save"
@@ -172,7 +172,7 @@ def test_edit_artist_with_empty_values(name: str, genre: str):
         ("rhythm & blues", "Rhythm & Blues"),
     ],
 )
-def test_genre_title_case_formatting(genre_input, expected_genre):
+def test_genre_title_case_formatting(genre_input: str, expected_genre: str) -> None:
     # TODO: this is TDD for the behavior but needs actual implementation.
     original_artist = Artist(name="Test artist", genre="Original Genre")
     screen = EditArtistScreen(original_artist)
@@ -196,7 +196,7 @@ def test_genre_title_case_formatting(genre_input, expected_genre):
         assert original_artist.genre == expected_genre
 
 
-def test_edit_artist_cancel():
+def test_edit_artist_cancel() -> None:
     original_artist = Artist(name="Original Name", genre="Original Genre")
     screen = EditArtistScreen(original_artist)
     screen.dismiss = Mock()

@@ -7,7 +7,7 @@ from concert_db.models import Artist, Concert, Venue, save_object
 from .utils import save_objects
 
 
-def test_database_isolation_between_tests(db_session: Session):
+def test_database_isolation_between_tests(db_session: Session) -> None:
     artists = db_session.query(Artist).all()
     venues = db_session.query(Venue).all()
     concerts = db_session.query(Concert).all()
@@ -17,7 +17,7 @@ def test_database_isolation_between_tests(db_session: Session):
     assert len(concerts) == 0
 
 
-def test_create_artist(db_session: Session):
+def test_create_artist(db_session: Session) -> None:
     artist = Artist(name="The Beatles", genre="Rock")
     save_object(artist, db_session)
 
@@ -28,7 +28,7 @@ def test_create_artist(db_session: Session):
     assert retrieved_artist.id is not None
 
 
-def test_create_venue(db_session: Session):
+def test_create_venue(db_session: Session) -> None:
     venue = Venue(name="Madison Square Garden", location="New York, NY")
     save_object(venue, db_session)
 
@@ -39,7 +39,7 @@ def test_create_venue(db_session: Session):
     assert retrieved_venue.id is not None
 
 
-def test_venue_unique_constraint(db_session: Session):
+def test_venue_unique_constraint(db_session: Session) -> None:
     venue = Venue(name="Red Rocks Amphitheatre", location="Morrison, CO")
     save_object(venue, db_session)
     assert db_session.query(Venue).filter_by(name="Red Rocks Amphitheatre", location="Morrison, CO").count() == 1
@@ -53,7 +53,7 @@ def test_venue_unique_constraint(db_session: Session):
     assert db_session.query(Venue).filter_by(name="Red Rocks Amphitheatre", location="Morrison, CO").count() == 1
 
 
-def test_concert_unique_constraint(db_session: Session):
+def test_concert_unique_constraint(db_session: Session) -> None:
     venue = Venue(name="Red Rocks Amphitheatre", location="Morrison, CO")
     artist = Artist(name="Phish", genre="Rock")
     concert = Concert(artist=artist, venue=venue, date="2024-07-04")
@@ -72,7 +72,7 @@ def test_concert_unique_constraint(db_session: Session):
     assert db_session.query(Concert).filter_by(artist=artist, venue=venue, date="2024-07-04").count() == 1
 
 
-def test_create_concert_with_relationships(db_session: Session):
+def test_create_concert_with_relationships(db_session: Session) -> None:
     artist = Artist(name="Led Zeppelin", genre="Rock")
     venue = Venue(name="Wembley Stadium", location="London, UK")
 
@@ -89,7 +89,7 @@ def test_create_concert_with_relationships(db_session: Session):
     assert retrieved_concert.venue.name == "Wembley Stadium"
 
 
-def test_concerts_relationship(db_session: Session):
+def test_concerts_relationship(db_session: Session) -> None:
     artist = Artist(name="Pink Floyd", genre="Progressive Rock")
     venue = Venue(name="Pompeii Amphitheatre", location="Pompeii, Italy")
     concert1 = Concert(artist=artist, venue=venue, date="1973-03-01")
@@ -106,7 +106,7 @@ def test_concerts_relationship(db_session: Session):
     assert sorted([date_one, date_two]) == ["1973-03-01", "1975-09-15"]
 
 
-def test_venues_relationship(db_session: Session):
+def test_venues_relationship(db_session: Session) -> None:
     venue1 = Venue(name="Benaroya Hall", location="Seattle, WA")
     venue2 = Venue(name="Key Arena", location="Seattle, WA")
     artist = Artist(name="Pearl Jam", genre="Rock")

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Callable, Generator
 from unittest.mock import Mock, PropertyMock
 
 import pytest
@@ -29,7 +29,7 @@ def db_session() -> Generator[Session, None, None]:
 
 
 @pytest.fixture()
-def mock_app():
+def mock_app() -> Callable[["ModalScreen"], Mock]:
     """
     The @property app can't be set with equals (e.g. screen.app = Mock()).
     Use this approach on screens that need access to the `self.app` property.

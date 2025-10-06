@@ -10,7 +10,7 @@ from concert_db.ui.venue import AddVenueScreen, EditVenueScreen, VenueScreen, fo
 from .utils import save_objects
 
 
-def test_load_venues(db_session: Session):
+def test_load_venues(db_session: Session) -> None:
     v1 = Venue(name="Roxy", location="Atlanta, GA")
     v2 = Venue(name="Madison Square Garden", location="New York, NY")
     v3 = Venue(name="Broadberry", location="Richmond, VA")
@@ -20,7 +20,7 @@ def test_load_venues(db_session: Session):
     assert venue_ui._venues == []
 
     mock_table = Mock()
-    venue_ui.query_one = lambda *_args, **_kwargs: mock_table  # type: ignore[method-assign]
+    venue_ui.query_one = lambda *_args, **_kwargs: mock_table
     venue_ui.load_venues()
 
     mock_table.add_columns.assert_called_once_with("ID", "Name", "Location", "Concerts")
@@ -40,7 +40,7 @@ def mock_query_one(name: str, location: str) -> Mock:
     return Mock(side_effect=lambda selector, _: {"#venue_name": name, "#location": location}[selector])
 
 
-def test_add_venue_with_valid_data():
+def test_add_venue_with_valid_data() -> None:
     screen = AddVenueScreen()
 
     # pad with spaces to test trimming
@@ -73,7 +73,7 @@ def test_add_venue_with_valid_data():
         ("   ", "   "),
     ],
 )
-def test_add_venue_with_empty_values(name: str, location: str, mock_app):
+def test_add_venue_with_empty_values(name: str, location: str, mock_app: Mock) -> None:
     screen = AddVenueScreen()
 
     name_input = Mock()
@@ -81,8 +81,8 @@ def test_add_venue_with_empty_values(name: str, location: str, mock_app):
     location_input = Mock()
     location_input.value = location
 
-    screen.query_one = mock_query_one(name_input, location_input)  # type: ignore[method-assign]
-    screen.dismiss = Mock()  # type: ignore[method-assign]
+    screen.query_one = mock_query_one(name_input, location_input)
+    screen.dismiss = Mock()
     _mock_app = mock_app(screen)
 
     button = Mock()
@@ -96,7 +96,7 @@ def test_add_venue_with_empty_values(name: str, location: str, mock_app):
     screen.dismiss.assert_called_once_with(None)
 
 
-def test_add_venue_cancel():
+def test_add_venue_cancel() -> None:
     screen = AddVenueScreen()
     screen.dismiss = Mock()
     button = Mock()
@@ -108,7 +108,7 @@ def test_add_venue_cancel():
     screen.dismiss.assert_called_once_with(None)
 
 
-def test_edit_venue_with_valid_data():
+def test_edit_venue_with_valid_data() -> None:
     original_venue = Venue(name="Original Name", location="Original Location, OL")
     screen = EditVenueScreen(original_venue)
     assert screen.venue == original_venue
@@ -141,7 +141,7 @@ def test_edit_venue_with_valid_data():
         ("   ", "   "),
     ],
 )
-def test_edit_venue_with_empty_values(name: str, location: str, mock_app):
+def test_edit_venue_with_empty_values(name: str, location: str, mock_app: Mock) -> None:
     original_venue = Venue(name="Original Name", location="Original Location, OL")
     screen = EditVenueScreen(original_venue)
 
@@ -150,8 +150,8 @@ def test_edit_venue_with_empty_values(name: str, location: str, mock_app):
     location_input = Mock()
     location_input.value = location
 
-    screen.query_one = mock_query_one(name_input, location_input)  # type: ignore[method-assign]
-    screen.dismiss = Mock()  # type: ignore[method-assign]
+    screen.query_one = mock_query_one(name_input, location_input)
+    screen.dismiss = Mock()
     _mock_app = mock_app(screen)
 
     button = Mock()
@@ -180,7 +180,7 @@ def test_edit_venue_with_empty_values(name: str, location: str, mock_app):
         "las vegas, nv",
     ],
 )
-def test_venue_location_regex_failure(location: str):
+def test_venue_location_regex_failure(location: str) -> None:
     with pytest.raises(ValueError):
         format_input("generic name", location)
 
@@ -199,7 +199,7 @@ def test_venue_location_regex_failure(location: str):
         "Las Vegas, NV",
     ],
 )
-def test_venue_location_regex_success(location: str):
+def test_venue_location_regex_success(location: str) -> None:
     with does_not_raise():
         format_input("generic name", location)
 
@@ -221,7 +221,7 @@ def test_venue_location_regex_success(location: str):
         pytest.param("   ", False, id="Only whitespace"),
     ],
 )
-def test_location_format_validation(location, is_valid, mock_app):
+def test_location_format_validation(location: str, is_valid: bool, mock_app: Mock) -> None:
     original_venue = Venue(name="Test Venue", location="Original Location, OL")
     screen = EditVenueScreen(original_venue)
 
@@ -252,7 +252,7 @@ def test_location_format_validation(location, is_valid, mock_app):
         screen.dismiss.assert_called_once_with(None)
 
 
-def test_edit_venue_cancel():
+def test_edit_venue_cancel() -> None:
     original_venue = Venue(name="Original Name", location="Original Location, OL")
     screen = EditVenueScreen(original_venue)
     screen.dismiss = Mock()

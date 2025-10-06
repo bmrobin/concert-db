@@ -10,7 +10,7 @@ from concert_db.ui.concert import AddConcertScreen, Concerts
 from .utils import save_objects
 
 
-def test_load_concerts(db_session: Session):
+def test_load_concerts(db_session: Session) -> None:
     v = Venue(name="YMCA", location="Easley, SC")
     a = Artist(name="Perpetual Groove", genre="Jam Band")
     c1 = Concert(artist=a, venue=v, date="2006-08-11")
@@ -21,7 +21,7 @@ def test_load_concerts(db_session: Session):
     concert_ui = Concerts(db_session)
 
     mock_table = Mock()
-    concert_ui.query_one = lambda *_args, **_kwargs: mock_table  # type: ignore[method-assign]
+    concert_ui.query_one = lambda *_args, **_kwargs: mock_table
     concert_ui.load_concerts()
 
     mock_table.add_columns.assert_called_once_with("ID", "Artist", "Venue", "Date")
@@ -36,13 +36,13 @@ def test_load_concerts(db_session: Session):
     )
 
 
-def test_fetch_data_empty(db_session: Session):
+def test_fetch_data_empty(db_session: Session) -> None:
     screen = AddConcertScreen(db_session)
     assert screen.artists == []
     assert screen.venues == []
 
 
-def test_fetch_data(db_session: Session):
+def test_fetch_data(db_session: Session) -> None:
     v1 = Venue(name="Brown's Island", location="Richmond, VA")
     v2 = Venue(name="Broadberry", location="Richmond, VA")
     a1 = Artist(name="Michael Jackson", genre="Pop")
@@ -66,7 +66,7 @@ def mock_query_one(artist: Mock, venue: Mock, date: Mock) -> Mock:
     )
 
 
-def test_create_concert_with_valid_data(db_session: Session, mock_app):
+def test_create_concert_with_valid_data(db_session: Session, mock_app: Mock) -> None:
     artist = Artist(name="Nirvana", genre="Rock")
     venue = Venue(name="MTV Unplugged", location="New York, NY")
     save_objects((artist, venue), db_session)
@@ -79,8 +79,8 @@ def test_create_concert_with_valid_data(db_session: Session, mock_app):
     date_input = Mock()
     date_input.value = "1993-11-18"
 
-    screen.query_one = mock_query_one(artist_input, venue_input, date_input)  # type: ignore[method-assign]
-    screen.dismiss = Mock()  # type: ignore[method-assign]
+    screen.query_one = mock_query_one(artist_input, venue_input, date_input)
+    screen.dismiss = Mock()
     _mock_app = mock_app(screen)
 
     button = Mock()
@@ -113,7 +113,7 @@ def test_create_concert_with_valid_data(db_session: Session, mock_app):
         ("2024_07_04"),
     ],
 )
-def test_create_concert_date_format_validation(db_session: Session, date_value: str, mock_app):
+def test_create_concert_date_format_validation(db_session: Session, date_value: str, mock_app: Mock) -> None:
     artist = Artist(name="Rihanna", genre="Pop")
     venue = Venue(name="The Roxy", location="Los Angeles, CA")
     save_objects((artist, venue), db_session)
@@ -126,8 +126,8 @@ def test_create_concert_date_format_validation(db_session: Session, date_value: 
     date_input = Mock()
     date_input.value = date_value
 
-    screen.query_one = mock_query_one(artist_input, venue_input, date_input)  # type: ignore[method-assign]
-    screen.dismiss = Mock()  # type: ignore[method-assign]
+    screen.query_one = mock_query_one(artist_input, venue_input, date_input)
+    screen.dismiss = Mock()
     _mock_app = mock_app(screen)
 
     button = Mock()
@@ -152,7 +152,13 @@ def test_create_concert_date_format_validation(db_session: Session, date_value: 
         ("art", None, ""),
     ],
 )
-def test_create_concert_with_invalid_data(artist_value, venue_value, date_value, db_session: Session, mock_app):
+def test_create_concert_with_invalid_data(
+    artist_value: str | None,
+    venue_value: str | None,
+    date_value: str,
+    db_session: Session,
+    mock_app: Mock,
+) -> None:
     screen = AddConcertScreen(db_session)
 
     artist_input = Mock()
@@ -162,8 +168,8 @@ def test_create_concert_with_invalid_data(artist_value, venue_value, date_value,
     date_input = Mock()
     date_input.value = date_value
 
-    screen.query_one = mock_query_one(artist_input, venue_input, date_input)  # type: ignore[method-assign]
-    screen.dismiss = Mock()  # type: ignore[method-assign]
+    screen.query_one = mock_query_one(artist_input, venue_input, date_input)
+    screen.dismiss = Mock()
     _mock_app = mock_app(screen)
 
     button = Mock()
@@ -179,7 +185,7 @@ def test_create_concert_with_invalid_data(artist_value, venue_value, date_value,
     assert db_session.query(Venue).count() == 0
 
 
-def test_create_concert_cancel(db_session: Session, mock_app):
+def test_create_concert_cancel(db_session: Session, mock_app: Mock) -> None:
     screen = AddConcertScreen(db_session)
 
     artist_input = Mock()
@@ -189,8 +195,8 @@ def test_create_concert_cancel(db_session: Session, mock_app):
     date_input = Mock()
     date_input.value = "1"
 
-    screen.query_one = mock_query_one(artist_input, venue_input, date_input)  # type: ignore[method-assign]
-    screen.dismiss = Mock()  # type: ignore[method-assign]
+    screen.query_one = mock_query_one(artist_input, venue_input, date_input)
+    screen.dismiss = Mock()
 
     _mock_app = mock_app(screen)
 

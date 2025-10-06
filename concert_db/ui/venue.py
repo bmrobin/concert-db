@@ -48,9 +48,6 @@ class VenueScreen(Vertical):
 
     def action_edit_venue(self) -> None:
         table = self.query_one("#venues_table", DataTable)
-        if table.cursor_row is None:
-            self.app.notify("Please select an venue to edit", severity="warning")
-            return
 
         # Get the venue from our stored list using the cursor row index
         row_index = table.cursor_row
