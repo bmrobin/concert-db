@@ -1,5 +1,5 @@
 from contextlib import nullcontext as does_not_raise
-from unittest.mock import Mock, PropertyMock
+from unittest.mock import Mock
 
 import pytest
 from sqlalchemy.orm import Session
@@ -73,7 +73,7 @@ def test_add_venue_with_valid_data():
         ("   ", "   "),
     ],
 )
-def test_add_venue_with_empty_values(name: str, location: str):
+def test_add_venue_with_empty_values(name: str, location: str, mock_app):
     screen = AddVenueScreen()
 
     name_input = Mock()
@@ -83,10 +83,7 @@ def test_add_venue_with_empty_values(name: str, location: str):
 
     screen.query_one = mock_query_one(name_input, location_input)  # type: ignore[method-assign]
     screen.dismiss = Mock()  # type: ignore[method-assign]
-
-    # the @property app can't be set with equals, so use type(screen) + propertymock
-    mock_app = Mock()
-    type(screen).app = PropertyMock(return_value=mock_app)
+    _mock_app = mock_app(screen)
 
     button = Mock()
     button.id = "save"
@@ -95,7 +92,7 @@ def test_add_venue_with_empty_values(name: str, location: str):
 
     # empty value should not save
     screen.on_button_pressed(event)
-    mock_app.notify.assert_called_once_with("Invalid name & location", severity="error")
+    _mock_app.notify.assert_called_once_with("Invalid name & location", severity="error")
     screen.dismiss.assert_called_once_with(None)
 
 
@@ -144,7 +141,7 @@ def test_edit_venue_with_valid_data():
         ("   ", "   "),
     ],
 )
-def test_edit_venue_with_empty_values(name: str, location: str):
+def test_edit_venue_with_empty_values(name: str, location: str, mock_app):
     original_venue = Venue(name="Original Name", location="Original Location, OL")
     screen = EditVenueScreen(original_venue)
 
@@ -155,10 +152,7 @@ def test_edit_venue_with_empty_values(name: str, location: str):
 
     screen.query_one = mock_query_one(name_input, location_input)  # type: ignore[method-assign]
     screen.dismiss = Mock()  # type: ignore[method-assign]
-
-    # the @property app can't be set with equals, so use type(screen) + propertymock
-    mock_app = Mock()
-    type(screen).app = PropertyMock(return_value=mock_app)
+    _mock_app = mock_app(screen)
 
     button = Mock()
     button.id = "save"
@@ -167,7 +161,7 @@ def test_edit_venue_with_empty_values(name: str, location: str):
     screen.on_button_pressed(event)
 
     # empty value should not save
-    mock_app.notify.assert_called_once_with("Invalid name & location", severity="error")
+    _mock_app.notify.assert_called_once_with("Invalid name & location", severity="error")
     screen.dismiss.assert_called_once_with(None)
     # should not modify original venue
     assert original_venue.name == "Original Name"
@@ -227,7 +221,7 @@ def test_venue_location_regex_success(location: str):
         pytest.param("   ", False, id="Only whitespace"),
     ],
 )
-def test_location_format_validation(location, is_valid):
+def test_location_format_validation(location, is_valid, mock_app):
     original_venue = Venue(name="Test Venue", location="Original Location, OL")
     screen = EditVenueScreen(original_venue)
 
@@ -238,10 +232,7 @@ def test_location_format_validation(location, is_valid):
 
     screen.query_one = mock_query_one(name_input, location_input_mock)
     screen.dismiss = Mock()
-
-    # the @property app can't be set with equals, so use type(screen) + propertymock
-    mock_app = Mock()
-    type(screen).app = PropertyMock(return_value=mock_app)
+    _mock_app = mock_app(screen)
 
     button = Mock()
     button.id = "save"
@@ -257,7 +248,7 @@ def test_location_format_validation(location, is_valid):
     else:
         # empty or invalid value should not save
         screen.on_button_pressed(event)
-        mock_app.notify.assert_called_once_with("Invalid name & location", severity="error")
+        _mock_app.notify.assert_called_once_with("Invalid name & location", severity="error")
         screen.dismiss.assert_called_once_with(None)
 
 
