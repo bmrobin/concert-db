@@ -4,18 +4,17 @@ from unittest.mock import Mock, PropertyMock
 import pytest
 from sqlalchemy.orm import Session
 
-from concert_db.models import Venue, save_objects
+from concert_db.models import Venue
 from concert_db.ui.venue import AddVenueScreen, EditVenueScreen, VenueScreen, format_input
+
+from .utils import save_objects
 
 
 def test_load_venues(db_session: Session):
     v1 = Venue(name="Roxy", location="Atlanta, GA")
     v2 = Venue(name="Madison Square Garden", location="New York, NY")
     v3 = Venue(name="Broadberry", location="Richmond, VA")
-    save_objects(
-        (v1, v2, v3),
-        db_session,
-    )
+    save_objects((v1, v2, v3), db_session)
     venue_ui = VenueScreen(db_session)
 
     assert venue_ui._venues == []

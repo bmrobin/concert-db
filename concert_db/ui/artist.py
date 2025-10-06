@@ -7,7 +7,7 @@ from textual.containers import Horizontal, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Button, DataTable, Input, Label
 
-from concert_db.models import Artist, save_objects
+from concert_db.models import Artist, save_object
 
 
 class ArtistScreen(Vertical):
@@ -40,7 +40,7 @@ class ArtistScreen(Vertical):
     def action_add_artist(self) -> None:
         def handle_artist_result(artist: Artist | None) -> None:
             if artist:
-                save_objects((artist,), self.db_session, self.app.notify)
+                save_object(artist, self.db_session, self.app.notify)
                 self.load_artists()
 
         self.app.push_screen(AddArtistScreen(), handle_artist_result)
@@ -61,7 +61,7 @@ class ArtistScreen(Vertical):
 
         def handle_edit_result(updated_artist: Artist | None) -> None:
             if updated_artist:
-                save_objects((updated_artist,), self.db_session, self.app.notify)
+                save_object(updated_artist, self.db_session, self.app.notify)
                 self.load_artists()
 
         self.app.push_screen(EditArtistScreen(artist), handle_edit_result)

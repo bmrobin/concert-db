@@ -3,18 +3,17 @@ from unittest.mock import Mock
 import pytest
 from sqlalchemy.orm import Session
 
-from concert_db.models import Artist, save_objects
+from concert_db.models import Artist
 from concert_db.ui.artist import AddArtistScreen, ArtistScreen, EditArtistScreen
+
+from .utils import save_objects
 
 
 def test_load_artists(db_session: Session):
     a1 = Artist(name="Taylor Swift", genre="Pop")
     a2 = Artist(name="Jim James", genre="Folk")
     a3 = Artist(name="Beyoncé", genre="Pop")
-    save_objects(
-        (a1, a2, a3),
-        db_session,
-    )
+    save_objects((a1, a2, a3), db_session)
     artist_ui = ArtistScreen(db_session)
 
     assert artist_ui._artists == []

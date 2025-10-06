@@ -8,7 +8,7 @@ from textual.containers import Horizontal, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Button, DataTable, Input, Label
 
-from concert_db.models import Venue, save_objects
+from concert_db.models import Venue, save_object
 
 
 class VenueScreen(Vertical):
@@ -41,7 +41,7 @@ class VenueScreen(Vertical):
     def action_add_venue(self) -> None:
         def handle_venue_result(venue: Venue | None) -> None:
             if venue:
-                save_objects((venue,), self.db_session, self.app.notify)
+                save_object(venue, self.db_session, self.app.notify)
                 self.load_venues()
 
         self.app.push_screen(AddVenueScreen(), handle_venue_result)
@@ -62,7 +62,7 @@ class VenueScreen(Vertical):
 
         def handle_edit_result(updated_venue: Venue | None) -> None:
             if updated_venue:
-                save_objects((updated_venue,), self.db_session, self.app.notify)
+                save_object(updated_venue, self.db_session, self.app.notify)
                 self.load_venues()
 
         self.app.push_screen(EditVenueScreen(venue), handle_edit_result)

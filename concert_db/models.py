@@ -1,4 +1,4 @@
-from typing import Iterable, Optional
+from typing import Optional
 
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship
@@ -40,18 +40,13 @@ class Venue(Base):
     concerts: Mapped[list["Concert"]] = relationship(back_populates="venue")
 
 
-# TODO: decide if i want to keep this accepting a list of objs.
-# TODO: i really only use this in tests, so perhaps it's better served as a test util only.
-def save_objects(objs: Iterable[Base | None], db_session: Session, notify_callback: Notification | None = None) -> None:
-    if objs:  # ignore empty iterables
-        try:
-            for obj in objs:
-                if obj is not None:  # skip any None obj
-                    db_session.add(obj)
-            db_session.commit()
-            if callable(notify_callback):
-                notify_callback("Saved successfully!", severity="information")
-        except Exception as exc:
-            db_session.rollback()
-            if callable(notify_callback):
-                notify_callback(f"Error saving object: {exc}", severity="error")
+def save_object(obj: Base, db_session: Session, notify_callback: Notification | None = None) -> None:
+    try:
+        db_session.add(obj)
+        db_session.commit()
+        if callable(notify_callback):
+            notify_callback("Saved successfully!", severity="information")
+    except Exception as exc:
+        db_session.rollback()
+        if callable(notify_callback):
+            notify_callback(f"Error saving object: {exc}", severity="error")

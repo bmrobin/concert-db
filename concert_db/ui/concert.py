@@ -7,7 +7,7 @@ from textual.containers import Horizontal, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Button, DataTable, Input, Label, Select
 
-from concert_db.models import Artist, Concert, Venue, save_objects
+from concert_db.models import Artist, Concert, Venue, save_object
 
 
 class Concerts(Horizontal):
@@ -55,7 +55,7 @@ class Concerts(Horizontal):
     def action_add_concert(self) -> None:
         def handle_concert_result(concert: Concert | None) -> None:
             if concert:
-                save_objects((concert,), self.db_session, self.app.notify)
+                save_object(concert, self.db_session, self.app.notify)
                 self.load_concerts()
 
         self.app.push_screen(AddConcertScreen(self.db_session), handle_concert_result)

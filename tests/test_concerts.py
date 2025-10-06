@@ -2,8 +2,10 @@ from unittest.mock import Mock
 
 from sqlalchemy.orm import Session
 
-from concert_db.models import Artist, Concert, Venue, save_objects
+from concert_db.models import Artist, Concert, Venue
 from concert_db.ui.concert import AddConcertScreen, Concerts
+
+from .utils import save_objects
 
 
 def test_load_concerts(db_session: Session):
@@ -13,10 +15,7 @@ def test_load_concerts(db_session: Session):
     c2 = Concert(artist=a, venue=v, date="2006-08-12")
     c3 = Concert(artist=a, venue=v, date="2010-11-27")
     c4 = Concert(artist=a, venue=v, date=None)
-    save_objects(
-        (v, a, c1, c2, c3, c4),
-        db_session,
-    )
+    save_objects((v, a, c1, c2, c3, c4), db_session)
     concert_ui = Concerts(db_session)
 
     mock_table = Mock()
@@ -45,7 +44,7 @@ def test_fetch_data(db_session: Session):
     v2 = Venue(name="Broadberry", location="Richmond, VA")
     a1 = Artist(name="Michael Jackson", genre="Pop")
     a2 = Artist(name="Madonna", genre="Pop")
-    save_objects((v1, v2, a1, a2), db_session, None)
+    save_objects((v1, v2, a1, a2), db_session)
 
     screen = AddConcertScreen(db_session)
     artists, venues = screen.fetch_data()
