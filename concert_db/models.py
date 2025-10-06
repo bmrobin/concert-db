@@ -12,6 +12,7 @@ class Base(DeclarativeBase):
 
 class Concert(Base):
     __tablename__ = "concerts"
+    __table_args__ = (UniqueConstraint("artist_id", "venue_id", "date", name="unique_concert"),)
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     artist_id: Mapped[int] = mapped_column(ForeignKey("artists.id"))

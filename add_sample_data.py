@@ -55,7 +55,6 @@ def add_sample_data():
             Concert(artist_id=artists[3].id, venue_id=venues[3].id, date="2024-09-05"),
             Concert(artist_id=artists[3].id, venue_id=venues[3].id, date="2024-09-06"),
             Concert(artist_id=artists[3].id, venue_id=venues[3].id, date="2024-09-07"),
-            Concert(artist_id=artists[4].id, venue_id=venues[3].id, date="2024-09-08"),
             Concert(artist_id=artists[4].id, venue_id=venues[3].id, date="2024-09-06"),
             Concert(artist_id=artists[4].id, venue_id=venues[3].id, date="2024-09-07"),
             Concert(artist_id=artists[4].id, venue_id=venues[3].id, date="2024-09-08"),

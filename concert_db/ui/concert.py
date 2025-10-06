@@ -1,3 +1,4 @@
+import re
 from typing import ClassVar
 
 from sqlalchemy.orm import Session
@@ -75,6 +76,7 @@ class AddConcertScreen(ModalScreen[Concert | None]):
 
     def __init__(self, db_session: Session) -> None:
         self.db_session = db_session
+        self.artists, self.venues = self.fetch_data()
         super().__init__()
 
     def fetch_data(self) -> tuple[list[Artist], list[Venue]]:
@@ -83,12 +85,11 @@ class AddConcertScreen(ModalScreen[Concert | None]):
         return artists, venues
 
     def compose(self) -> ComposeResult:
-        artists, venues = self.fetch_data()
         with Vertical():
             yield Label("Add New Concert", classes="title")
             yield Label("Artist:")
             yield Select.from_values(
-                [a.name for a in artists],
+                [a.name for a in self.artists],
                 type_to_search=True,
                 allow_blank=False,
                 prompt="Select an artist",
@@ -97,7 +98,7 @@ class AddConcertScreen(ModalScreen[Concert | None]):
             )
             yield Label("Venue:")
             yield Select.from_values(
-                [v.name for v in venues],
+                [v.name for v in self.venues],
                 type_to_search=True,
                 allow_blank=False,
                 prompt="Select a venue",
@@ -116,12 +117,20 @@ class AddConcertScreen(ModalScreen[Concert | None]):
             venue_input = self.query_one("#concert_venue", Select)
             date_input = self.query_one("#concert_date", Input)
 
-            # TODO: validation
-            # ??? the values returned are the raw strings, bc that's what we supplied as `values` above
-            # ??? an add'l db query would be fast & efficient, just ... feels like a missed opp ...
-            # ??? oh, maybe grab from self.[X] ?
-            if artist_input and venue_input and date_input:
-                concert = Concert(artist=artist_input, venue=venue_input, date=date_input)
+            artist = artist_input.value if artist_input.value != Select.BLANK else None
+            venue = venue_input.value if venue_input.value != Select.BLANK else None
+            date = date_input.value.strip()
+
+            if artist and venue and date:
+                pattern = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+                if not pattern.search(date):
+                    self.app.notify("Date must be in format YYYY-MM-DD", severity="error")
+                    self.dismiss(None)
+                    return
+                # selected values are raw strings because of Select.from_values(), so match objs from class variables
+                _artist = next(filter(lambda a: a.name == artist, self.artists))
+                _venue = next(filter(lambda v: v.name == venue, self.venues))
+                concert = Concert(artist=_artist, venue=_venue, date=date)
                 self.dismiss(concert)
             else:
                 self.dismiss(None)

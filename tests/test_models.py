@@ -39,7 +39,7 @@ def test_create_venue(db_session: Session):
     assert retrieved_venue.id is not None
 
 
-def test_save_rollback_on_failure(db_session: Session):
+def test_venue_unique_constraint(db_session: Session):
     venue = Venue(name="Red Rocks Amphitheatre", location="Morrison, CO")
     save_object(venue, db_session)
     assert db_session.query(Venue).filter_by(name="Red Rocks Amphitheatre", location="Morrison, CO").count() == 1
@@ -51,6 +51,25 @@ def test_save_rollback_on_failure(db_session: Session):
     mock_notify_failure.assert_called_once()
     assert "UNIQUE constraint failed: venues.name, venues.location" in mock_notify_failure.call_args[0][0]
     assert db_session.query(Venue).filter_by(name="Red Rocks Amphitheatre", location="Morrison, CO").count() == 1
+
+
+def test_concert_unique_constraint(db_session: Session):
+    venue = Venue(name="Red Rocks Amphitheatre", location="Morrison, CO")
+    artist = Artist(name="Phish", genre="Rock")
+    concert = Concert(artist=artist, venue=venue, date="2024-07-04")
+    save_objects((venue, artist, concert), db_session)
+    assert db_session.query(Concert).filter_by(artist=artist, venue=venue, date="2024-07-04").count() == 1
+
+    duplicate_concert = Concert(artist=artist, venue=venue, date="2024-07-04")
+    mock_notify_failure = Mock()
+    save_object(duplicate_concert, db_session, notify_callback=mock_notify_failure)
+
+    mock_notify_failure.assert_called_once()
+    assert (
+        "UNIQUE constraint failed: concerts.artist_id, concerts.venue_id, concerts.date"
+        in mock_notify_failure.call_args[0][0]
+    )
+    assert db_session.query(Concert).filter_by(artist=artist, venue=venue, date="2024-07-04").count() == 1
 
 
 def test_create_concert_with_relationships(db_session: Session):
