@@ -92,7 +92,7 @@ class AddConcertScreen(ModalScreen[Concert | None]):
                 type_to_search=True,
                 allow_blank=False,
                 prompt="Select an artist",
-                id="artist-select",
+                id="concert_artist",
                 compact=False,
             )
             yield Label("Venue:")
@@ -101,7 +101,7 @@ class AddConcertScreen(ModalScreen[Concert | None]):
                 type_to_search=True,
                 allow_blank=False,
                 prompt="Select a venue",
-                id="venue-select",
+                id="concert_venue",
                 compact=False,
             )
             yield Label("Date (YYYY-MM-DD):")
@@ -112,8 +112,19 @@ class AddConcertScreen(ModalScreen[Concert | None]):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "save":
-            # TODO: implement validation and saving
-            self.dismiss(None)
+            artist_input = self.query_one("#concert_artist", Select)
+            venue_input = self.query_one("#concert_venue", Select)
+            date_input = self.query_one("#concert_date", Input)
+
+            # TODO: validation
+            # ??? the values returned are the raw strings, bc that's what we supplied as `values` above
+            # ??? an add'l db query would be fast & efficient, just ... feels like a missed opp ...
+            # ??? oh, maybe grab from self.[X] ?
+            if artist_input and venue_input and date_input:
+                concert = Concert(artist=artist_input, venue=venue_input, date=date_input)
+                self.dismiss(concert)
+            else:
+                self.dismiss(None)
 
         elif event.button.id == "cancel":
             self.dismiss(None)
