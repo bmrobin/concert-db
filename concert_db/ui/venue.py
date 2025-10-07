@@ -34,9 +34,9 @@ class VenueScreen(Vertical):
     def load_venues(self) -> None:
         table = self.query_one("#venues_table", DataTable)
         table.clear(columns=True)
-        table.add_columns("ID", "Name", "Location", "Concerts")
+        table.add_columns("Name", "Location", "Concerts")
         self._venues = self.db_session.query(Venue).order_by(Venue.name).all()
-        table.add_rows([(venue.id, venue.name, venue.location, len(venue.concerts)) for venue in self._venues])
+        table.add_rows([(venue.name, venue.location, len(venue.concerts)) for venue in self._venues])
 
     def action_add_venue(self) -> None:
         def handle_venue_result(venue: Venue | None) -> None:

@@ -33,9 +33,9 @@ class ArtistScreen(Vertical):
     def load_artists(self) -> None:
         table = self.query_one("#artists_table", DataTable)
         table.clear(columns=True)
-        table.add_columns("ID", "Name", "Genre", "Concerts")
+        table.add_columns("Name", "Genre", "Concerts")
         self._artists = self.db_session.query(Artist).order_by(Artist.name).all()
-        table.add_rows([(artist.id, artist.name, artist.genre, len(artist.concerts)) for artist in self._artists])
+        table.add_rows([(artist.name, artist.genre, len(artist.concerts)) for artist in self._artists])
 
     def action_add_artist(self) -> None:
         def handle_artist_result(artist: Artist | None) -> None:

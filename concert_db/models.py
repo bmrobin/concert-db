@@ -21,6 +21,9 @@ class Concert(Base):
     artist: Mapped["Artist"] = relationship(back_populates="concerts")
     venue: Mapped["Venue"] = relationship(back_populates="concerts")
 
+    def __repr__(self) -> str:
+        return f"Concert(id={self.id}, artist={self.artist.name}, date={self.date})"
+
 
 class Artist(Base):
     __tablename__ = "artists"

@@ -1,7 +1,9 @@
 import re
+from dataclasses import dataclass
 from typing import ClassVar
 
 from sqlalchemy.orm import Session
+from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
@@ -11,11 +13,29 @@ from textual.widgets import Button, DataTable, Input, Label, Select
 from concert_db.models import Artist, Concert, Venue, save_object
 
 
+@dataclass
+class Sorting:
+    column: int
+    name: str
+    ascending: bool = False
+
+
+class Columns:
+    values: ClassVar = [Sorting(0, "Artist", False), Sorting(1, "Venue", False), Sorting(2, "Date", False)]
+
+    def __getitem__(self, index: int) -> Sorting:
+        return self.values[index]
+
+    def titles(self) -> list[str]:
+        return [column.name for column in self.values]
+
+
 class Concerts(Horizontal):
     BINDINGS: ClassVar = [
         Binding("c", "add_concert", "Add Concert"),
-        Binding("r", "refresh", "Refresh"),
     ]
+
+    columns: ClassVar = Columns()
 
     def __init__(self, db_session: Session) -> None:
         self.db_session = db_session
@@ -25,26 +45,33 @@ class Concerts(Horizontal):
         yield DataTable(id="concerts_table", zebra_stripes=True)
 
     def on_mount(self) -> None:
-        self.load_concerts()
+        self.load_concerts(sorting=self.columns[2])
 
-    def load_concerts(self) -> None:
+    def load_concerts(self, sorting: Sorting) -> None:
         """
         Load and display concerts in the table.
         """
         table = self.query_one("#concerts_table", DataTable)
         table.clear(columns=True)
-        table.add_columns("ID", "Artist", "Venue", "Date")
+        table.add_columns(*self.columns.titles())
 
+        column_name = None
+        match sorting.name:
+            case "Artist":
+                column_name = Artist.name
+            case "Venue":
+                column_name = Venue.name
+            case "Date":
+                column_name = Concert.date
+
+        ordering = column_name.asc() if sorting.ascending else column_name.desc()
         concerts: list[Concert] = (
-            # TODO: not sure if i need to join to these or if sqlalchemy will handle it for me implicitly?
-            # self.db_session.query(Concert).join(Artist).outerjoin(Venue).order_by(Concert.date.nulls_last()).all()
-            self.db_session.query(Concert).order_by(Concert.date.nulls_last()).all()
+            self.db_session.query(Concert).join(Artist).join(Venue).order_by(ordering.nulls_last()).all()
         )
 
         table.add_rows(
             [
                 (
-                    concert.id,
                     concert.artist.name,
                     concert.venue.name,
                     concert.date or "n/a",
@@ -57,16 +84,15 @@ class Concerts(Horizontal):
         def handle_concert_result(concert: Concert | None) -> None:
             if concert:
                 save_object(concert, self.db_session, self.app.notify)
-                self.load_concerts()
+                self.load_concerts(sorting=self.columns[2])
 
         self.app.push_screen(AddConcertScreen(self.db_session), handle_concert_result)
 
-    def action_refresh(self) -> None:
-        """
-        Refresh the concerts table.
-        """
-        self.load_concerts()
-        self.notify("Table refreshed!")
+    @on(DataTable.HeaderSelected, "#concerts_table")
+    def header_selected(self, event: DataTable.HeaderSelected):
+        column = self.columns[event.column_index]
+        column.ascending = not column.ascending
+        self.load_concerts(sorting=column)
 
 
 class AddConcertScreen(ModalScreen[Concert | None]):

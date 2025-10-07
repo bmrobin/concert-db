@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from textual.widgets import Select
 
 from concert_db.models import Artist, Concert, Venue
-from concert_db.ui.concert import AddConcertScreen, Concerts
+from concert_db.ui.concert import AddConcertScreen, Concerts, Sorting
 
 from .utils import save_objects
 
@@ -22,16 +22,16 @@ def test_load_concerts(db_session: Session) -> None:
 
     mock_table = Mock()
     concert_ui.query_one = lambda *_args, **_kwargs: mock_table
-    concert_ui.load_concerts()
+    concert_ui.load_concerts(Sorting(2, "Date", True))
 
-    mock_table.add_columns.assert_called_once_with("ID", "Artist", "Venue", "Date")
+    mock_table.add_columns.assert_called_once_with("Artist", "Venue", "Date")
     mock_table.add_rows.assert_called_once_with(
         [
             # sorted by date with nulls last
-            (1, "Perpetual Groove", "YMCA", "2006-08-11"),
-            (2, "Perpetual Groove", "YMCA", "2006-08-12"),
-            (3, "Perpetual Groove", "YMCA", "2010-11-27"),
-            (4, "Perpetual Groove", "YMCA", "n/a"),
+            ("Perpetual Groove", "YMCA", "2006-08-11"),
+            ("Perpetual Groove", "YMCA", "2006-08-12"),
+            ("Perpetual Groove", "YMCA", "2010-11-27"),
+            ("Perpetual Groove", "YMCA", "n/a"),
         ]
     )
 

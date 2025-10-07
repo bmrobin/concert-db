@@ -23,13 +23,13 @@ def test_load_venues(db_session: Session) -> None:
     venue_ui.query_one = lambda *_args, **_kwargs: mock_table
     venue_ui.load_venues()
 
-    mock_table.add_columns.assert_called_once_with("ID", "Name", "Location", "Concerts")
+    mock_table.add_columns.assert_called_once_with("Name", "Location", "Concerts")
     mock_table.add_rows.assert_called_once_with(
         [
             # sorted by venue name
-            (3, "Broadberry", "Richmond, VA", 0),
-            (2, "Madison Square Garden", "New York, NY", 0),
-            (1, "Roxy", "Atlanta, GA", 0),
+            ("Broadberry", "Richmond, VA", 0),
+            ("Madison Square Garden", "New York, NY", 0),
+            ("Roxy", "Atlanta, GA", 0),
         ]
     )
     # venue objects should be stored on the class instance

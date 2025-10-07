@@ -22,13 +22,13 @@ def test_load_artists(db_session: Session) -> None:
     artist_ui.query_one = lambda *_args, **_kwargs: mock_table
     artist_ui.load_artists()
 
-    mock_table.add_columns.assert_called_once_with("ID", "Name", "Genre", "Concerts")
+    mock_table.add_columns.assert_called_once_with("Name", "Genre", "Concerts")
     mock_table.add_rows.assert_called_once_with(
         [
             # sorted by artist name
-            (3, "Beyoncé", "Pop", 0),
-            (2, "Jim James", "Folk", 0),
-            (1, "Taylor Swift", "Pop", 0),
+            ("Beyoncé", "Pop", 0),
+            ("Jim James", "Folk", 0),
+            ("Taylor Swift", "Pop", 0),
         ]
     )
     # artist objects should be stored on the class instance
