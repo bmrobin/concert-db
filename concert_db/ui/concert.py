@@ -1,5 +1,4 @@
 import re
-from dataclasses import dataclass
 from typing import ClassVar
 
 from sqlalchemy.orm import Session
@@ -12,22 +11,7 @@ from textual.widgets import Button, DataTable, Input, Label, Select
 
 from concert_db.models import Artist, Concert, Venue, save_object
 
-
-@dataclass
-class Sorting:
-    column: int
-    name: str
-    ascending: bool = False
-
-
-class Columns:
-    values: ClassVar = [Sorting(0, "Artist", False), Sorting(1, "Venue", False), Sorting(2, "Date", False)]
-
-    def __getitem__(self, index: int) -> Sorting:
-        return self.values[index]
-
-    def titles(self) -> list[str]:
-        return [column.name for column in self.values]
+from .shared import Columns, Sorting
 
 
 class Concerts(Horizontal):
@@ -35,14 +19,14 @@ class Concerts(Horizontal):
         Binding("c", "add_concert", "Add Concert"),
     ]
 
-    columns: ClassVar = Columns()
+    columns: ClassVar = Columns(["Artist", "Venue", "Date"])
 
     def __init__(self, db_session: Session) -> None:
         self.db_session = db_session
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        yield DataTable(id="concerts_table", zebra_stripes=True)
+        yield DataTable(id="concerts_table", zebra_stripes=True, cell_padding=6)
 
     def on_mount(self) -> None:
         self.load_concerts(sorting=self.columns[2])
@@ -89,9 +73,14 @@ class Concerts(Horizontal):
 
     @on(DataTable.HeaderSelected, "#concerts_table")
     def header_selected(self, event: DataTable.HeaderSelected) -> None:
-        column = self.columns[event.column_index]
-        column.ascending = not column.ascending
-        self.load_concerts(sorting=column)
+        for idx, column in enumerate(self.columns.values):
+            if idx != event.column_index:
+                column.ascending = None  # reset sort on other columns
+            if idx == event.column_index:
+                _column = self.columns[event.column_index]
+                _column.ascending = not _column.ascending
+
+        self.load_concerts(sorting=_column)
 
 
 class AddConcertScreen(ModalScreen[Concert | None]):
