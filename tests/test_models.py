@@ -53,6 +53,20 @@ def test_venue_unique_constraint(db_session: Session) -> None:
     assert db_session.query(Venue).filter_by(name="Red Rocks Amphitheatre", location="Morrison, CO").count() == 1
 
 
+def test_artist_unique_constraint(db_session: Session) -> None:
+    venue = Artist(name="Dave Matthews", genre="Rock")
+    save_object(venue, db_session)
+    assert db_session.query(Artist).filter_by(name="Dave Matthews", genre="Rock").count() == 1
+
+    duplicate_venue = Artist(name="Dave Matthews", genre="Rock")
+    mock_notify_failure = Mock()
+    save_object(duplicate_venue, db_session, notify_callback=mock_notify_failure)
+
+    mock_notify_failure.assert_called_once()
+    assert "UNIQUE constraint failed: artists.name, artists.genre" in mock_notify_failure.call_args[0][0]
+    assert db_session.query(Artist).filter_by(name="Dave Matthews", genre="Rock").count() == 1
+
+
 def test_concert_unique_constraint(db_session: Session) -> None:
     venue = Venue(name="Red Rocks Amphitheatre", location="Morrison, CO")
     artist = Artist(name="Phish", genre="Rock")

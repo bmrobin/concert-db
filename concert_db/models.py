@@ -27,6 +27,7 @@ class Concert(Base):
 
 class Artist(Base):
     __tablename__ = "artists"
+    __table_args__ = (UniqueConstraint("name", "genre", name="unique_name_genre"),)
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str]

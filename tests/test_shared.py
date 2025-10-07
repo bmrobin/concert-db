@@ -12,6 +12,10 @@ def test_columns_initialization() -> None:
     assert cols[2].ascending is None
 
 
+def test_columns_empty_initialization() -> None:
+    assert Columns([]).values == []
+
+
 def test_columns_titles_sorting() -> None:
     cols = Columns(["A", "B", "C"])
 

@@ -240,8 +240,7 @@ def test_location_format_validation(location: str, is_valid: bool, mock_app: Moc
     event.button = button
 
     if is_valid and location.strip():
-        # Should update venue and dismiss
-        # TODO: This currently doesn't validate format, so all non-empty locations pass
+        # should update venue and dismiss
         screen.on_button_pressed(event)
         assert original_venue.location == location
         screen.dismiss.assert_called_once_with(original_venue)
