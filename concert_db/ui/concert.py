@@ -55,14 +55,13 @@ class Concerts(Horizontal):
         table.clear(columns=True)
         table.add_columns(*self.columns.titles())
 
-        column_name = None
         match sorting.name:
             case "Artist":
                 column_name = Artist.name
             case "Venue":
                 column_name = Venue.name
             case "Date":
-                column_name = Concert.date
+                column_name = Concert.date  # type: ignore[assignment]
 
         ordering = column_name.asc() if sorting.ascending else column_name.desc()
         concerts: list[Concert] = (
@@ -89,7 +88,7 @@ class Concerts(Horizontal):
         self.app.push_screen(AddConcertScreen(self.db_session), handle_concert_result)
 
     @on(DataTable.HeaderSelected, "#concerts_table")
-    def header_selected(self, event: DataTable.HeaderSelected):
+    def header_selected(self, event: DataTable.HeaderSelected) -> None:
         column = self.columns[event.column_index]
         column.ascending = not column.ascending
         self.load_concerts(sorting=column)
