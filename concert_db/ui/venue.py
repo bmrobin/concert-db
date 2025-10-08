@@ -15,7 +15,6 @@ class VenueScreen(Vertical):
     BINDINGS: ClassVar = [
         Binding("a", "add_venue", "Add Venue"),
         Binding("e", "edit_venue", "Edit Venue"),
-        Binding("r", "refresh", "Refresh"),
     ]
 
     def __init__(self, db_session: Session) -> None:
@@ -63,10 +62,6 @@ class VenueScreen(Vertical):
                 self.load_venues()
 
         self.app.push_screen(EditVenueScreen(venue), handle_edit_result)
-
-    def action_refresh(self) -> None:
-        self.load_venues()
-        self.app.notify("Venues table refreshed!")
 
 
 def format_input(name: str, location: str) -> str:

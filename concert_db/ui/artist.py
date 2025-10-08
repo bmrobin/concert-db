@@ -14,7 +14,6 @@ class ArtistScreen(Vertical):
     BINDINGS: ClassVar = [
         Binding("a", "add_artist", "Add Artist"),
         Binding("e", "edit_artist", "Edit Artist"),
-        Binding("r", "refresh", "Refresh"),
     ]
 
     def __init__(self, db_session: Session) -> None:
@@ -62,10 +61,6 @@ class ArtistScreen(Vertical):
                 self.load_artists()
 
         self.app.push_screen(EditArtistScreen(artist), handle_edit_result)
-
-    def action_refresh(self) -> None:
-        self.load_artists()
-        self.app.notify("Artists table refreshed!")
 
 
 class AddArtistScreen(ModalScreen[Artist | None]):
