@@ -88,11 +88,11 @@ class AddArtistScreen(ModalScreen[Artist | None]):
             genre = genre_input.value.strip()
 
             if name and genre:
-                artist = Artist(name=name, genre=genre)
+                artist = Artist(name=name, genre=genre.title())
                 self.dismiss(artist)
             else:
-                # Could add validation message here
-                pass
+                self.app.notify("Invalid name/genre", severity="error")
+                self.dismiss(None)
         elif event.button.id == "cancel":
             self.dismiss(None)
 
@@ -126,17 +126,15 @@ class EditArtistScreen(ModalScreen[Artist | None]):
             name_input = self.query_one("#artist_name", Input)
             genre_input = self.query_one("#genre", Input)
 
-            # TODO: add formatting here to title-case genre (leave artist as-is).
-            # TODO: add tests and validation checking here.
             name = name_input.value.strip()
             genre = genre_input.value.strip()
 
             if name and genre:
                 self.artist.name = name
-                self.artist.genre = genre
+                self.artist.genre = genre.title()
                 self.dismiss(self.artist)
             else:
-                # TODO: show failure notification and dismiss modal.
-                pass
+                self.app.notify("Invalid name/genre", severity="error")
+                self.dismiss(None)
         elif event.button.id == "cancel":
             self.dismiss(None)

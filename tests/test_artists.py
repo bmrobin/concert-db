@@ -72,7 +72,7 @@ def test_add_artist_with_valid_data() -> None:
         ("   ", "   "),
     ],
 )
-def test_add_artist_with_empty_values(name: str, genre: str) -> None:
+def test_add_artist_with_empty_values(name: str, genre: str, mock_app: Mock) -> None:
     screen = AddArtistScreen()
 
     name_input = Mock()
@@ -82,6 +82,7 @@ def test_add_artist_with_empty_values(name: str, genre: str) -> None:
 
     screen.query_one = mock_query_one(name_input, genre_input)
     screen.dismiss = Mock()
+    _mock_app = mock_app(screen)
 
     button = Mock()
     button.id = "save"
@@ -90,7 +91,8 @@ def test_add_artist_with_empty_values(name: str, genre: str) -> None:
     screen.on_button_pressed(event)
 
     # empty value should not save
-    screen.dismiss.assert_not_called()
+    screen.dismiss.assert_called_once_with(None)
+    _mock_app.notify.assert_called_once_with("Invalid name/genre", severity="error")
 
 
 def test_add_artist_cancel() -> None:
@@ -138,7 +140,7 @@ def test_edit_artist_with_valid_data() -> None:
         ("   ", "   "),
     ],
 )
-def test_edit_artist_with_empty_values(name: str, genre: str) -> None:
+def test_edit_artist_with_empty_values(name: str, genre: str, mock_app: Mock) -> None:
     original_artist = Artist(name="Original Name", genre="Original Genre")
     screen = EditArtistScreen(original_artist)
 
@@ -149,6 +151,7 @@ def test_edit_artist_with_empty_values(name: str, genre: str) -> None:
 
     screen.query_one = mock_query_one(name_input, genre_input)
     screen.dismiss = Mock()
+    _mock_app = mock_app(screen)
 
     button = Mock()
     button.id = "save"
@@ -159,21 +162,21 @@ def test_edit_artist_with_empty_values(name: str, genre: str) -> None:
     # should not modify original artist or dismiss
     assert original_artist.name == "Original Name"
     assert original_artist.genre == "Original Genre"
-    screen.dismiss.assert_not_called()
+    screen.dismiss.assert_called_once_with(None)
+    _mock_app.notify.assert_called_once_with("Invalid name/genre", severity="error")
 
 
 @pytest.mark.parametrize(
     "genre_input,expected_genre",
     [
         ("rock", "Rock"),
-        # TODO: when functionality is implemented this can be enabled ("Rock", "Rock"),
+        ("Rock", "Rock"),
         ("ALTERNATIVE ROCK", "Alternative Rock"),
         ("jAzz Fusion", "Jazz Fusion"),
         ("rhythm & blues", "Rhythm & Blues"),
     ],
 )
-def test_genre_title_case_formatting(genre_input: str, expected_genre: str) -> None:
-    # TODO: this is TDD for the behavior but needs actual implementation.
+def test_genre_title_case_formatting(genre_input: str, expected_genre: str, mock_app: Mock) -> None:
     original_artist = Artist(name="Test artist", genre="Original Genre")
     screen = EditArtistScreen(original_artist)
 
@@ -184,6 +187,7 @@ def test_genre_title_case_formatting(genre_input: str, expected_genre: str) -> N
 
     screen.query_one = mock_query_one(name_input, genre_input_mock)
     screen.dismiss = Mock()
+    _mock_app = mock_app(screen)
 
     button = Mock()
     button.id = "save"
@@ -191,9 +195,9 @@ def test_genre_title_case_formatting(genre_input: str, expected_genre: str) -> N
     event.button = button
     screen.on_button_pressed(event)
 
-    assert original_artist.genre == genre_input
-    with pytest.raises(AssertionError):
-        assert original_artist.genre == expected_genre
+    assert original_artist.genre == expected_genre
+    screen.dismiss.assert_called_once_with(original_artist)
+    _mock_app.notify.assert_not_called()
 
 
 def test_edit_artist_cancel() -> None:
