@@ -11,7 +11,7 @@ from textual.widgets import Button, DataTable, Input, Label, Select
 
 from concert_db.models import Artist, Concert, Venue, save_object
 
-from .shared import Columns, Sorting
+from .sorting import SortableColumns, Sorting
 
 
 class Concerts(Horizontal):
@@ -19,7 +19,7 @@ class Concerts(Horizontal):
         Binding("c", "add_concert", "Add Concert"),
     ]
 
-    columns: ClassVar = Columns(["Artist", "Venue", "Date"])
+    columns: ClassVar = SortableColumns(["Artist", "Venue", "Date"])
 
     def __init__(self, db_session: Session) -> None:
         self.db_session = db_session

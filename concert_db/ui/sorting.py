@@ -8,7 +8,7 @@ class Sorting:
     ascending: bool | None = None
 
 
-class Columns:
+class SortableColumns:
     sort_asc = "↑"
     sort_desc = "↓"
 

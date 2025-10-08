@@ -1,8 +1,8 @@
-from concert_db.ui.shared import Columns
+from concert_db.ui.sorting import SortableColumns
 
 
 def test_columns_initialization() -> None:
-    cols = Columns(["A", "B", "C"])
+    cols = SortableColumns(["A", "B", "C"])
     assert len(cols.values) == 3
     assert cols[0].name == "A"
     assert cols[0].ascending is None
@@ -13,11 +13,11 @@ def test_columns_initialization() -> None:
 
 
 def test_columns_empty_initialization() -> None:
-    assert Columns([]).values == []
+    assert SortableColumns([]).values == []
 
 
 def test_columns_titles_sorting() -> None:
-    cols = Columns(["A", "B", "C"])
+    cols = SortableColumns(["A", "B", "C"])
 
     # default has no sorting
     assert cols.titles() == ["A", "B", "C"]
