@@ -18,7 +18,6 @@ class ConcertDbApp(App):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        yield Header()
         with Horizontal(classes="concert-section"):
             yield Concerts(self.db_session)
         yield Rule(line_style="dashed")
