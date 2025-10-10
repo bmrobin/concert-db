@@ -64,13 +64,13 @@ class Concerts(Horizontal):
             ]
         )
 
-    def action_add_concert(self) -> None:
-        def handle_concert_result(concert: Concert | None) -> None:
-            if concert:
-                save_object(concert, self.db_session, self.app.notify)
-                self.load_concerts(sorting=self.columns[2])
+    def handle_modal_result(self, concert: Concert | None) -> None:
+        if concert:
+            save_object(concert, self.db_session, self.app.notify)
+            self.load_concerts(sorting=self.columns[2])
 
-        self.app.push_screen(AddConcertScreen(self.db_session), handle_concert_result)
+    def action_add_concert(self) -> None:
+        self.app.push_screen(AddConcertScreen(self.db_session), self.handle_modal_result)
 
     def action_edit_concert(self) -> None:
         table = self.query_one("#concerts_table", DataTable)
@@ -93,12 +93,7 @@ class Concerts(Horizontal):
             # shouldn't get here; for safety...
             raise ValueError("Could not find concert to edit")
 
-        def handle_edit_result(updated_concert: Concert | None) -> None:
-            if updated_concert:
-                save_object(updated_concert, self.db_session, self.app.notify)
-                self.load_concerts(sorting=self.columns[2])
-
-        self.app.push_screen(EditConcertScreen(concert, self.db_session), handle_edit_result)
+        self.app.push_screen(EditConcertScreen(concert, self.db_session), self.handle_modal_result)
 
     @on(DataTable.HeaderSelected, "#concerts_table")
     def header_selected(self, event: DataTable.HeaderSelected) -> None:

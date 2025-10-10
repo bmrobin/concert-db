@@ -37,13 +37,13 @@ class VenueScreen(Vertical):
         self._venues = self.db_session.query(Venue).order_by(Venue.name).all()
         table.add_rows([(venue.name, venue.location, len(venue.concerts)) for venue in self._venues])
 
-    def action_add_venue(self) -> None:
-        def handle_venue_result(venue: Venue | None) -> None:
-            if venue:
-                save_object(venue, self.db_session, self.app.notify)
-                self.load_venues()
+    def handle_modal_result(self, venue: Venue | None) -> None:
+        if venue:
+            save_object(venue, self.db_session, self.app.notify)
+            self.load_venues()
 
-        self.app.push_screen(AddVenueScreen(), handle_venue_result)
+    def action_add_venue(self) -> None:
+        self.app.push_screen(AddVenueScreen(), self.handle_modal_result)
 
     def action_edit_venue(self) -> None:
         table = self.query_one("#venues_table", DataTable)
@@ -53,15 +53,9 @@ class VenueScreen(Vertical):
         if row_index >= len(self._venues):
             self.app.notify("Invalid row selection", severity="error")
             return
-
         venue = self._venues[row_index]
 
-        def handle_edit_result(updated_venue: Venue | None) -> None:
-            if updated_venue:
-                save_object(updated_venue, self.db_session, self.app.notify)
-                self.load_venues()
-
-        self.app.push_screen(EditVenueScreen(venue), handle_edit_result)
+        self.app.push_screen(EditVenueScreen(venue), self.handle_modal_result)
 
 
 def format_input(name: str, location: str) -> str:

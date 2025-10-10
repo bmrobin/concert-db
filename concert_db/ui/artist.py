@@ -36,13 +36,13 @@ class ArtistScreen(Vertical):
         self._artists = self.db_session.query(Artist).order_by(Artist.name).all()
         table.add_rows([(artist.name, artist.genre, len(artist.concerts)) for artist in self._artists])
 
-    def action_add_artist(self) -> None:
-        def handle_artist_result(artist: Artist | None) -> None:
-            if artist:
-                save_object(artist, self.db_session, self.app.notify)
-                self.load_artists()
+    def handle_modal_result(self, artist: Artist | None) -> None:
+        if artist:
+            save_object(artist, self.db_session, self.app.notify)
+            self.load_artists()
 
-        self.app.push_screen(AddArtistScreen(), handle_artist_result)
+    def action_add_artist(self) -> None:
+        self.app.push_screen(AddArtistScreen(), self.handle_modal_result)
 
     def action_edit_artist(self) -> None:
         table = self.query_one("#artists_table", DataTable)
@@ -52,15 +52,9 @@ class ArtistScreen(Vertical):
         if row_index >= len(self._artists):
             self.app.notify("Invalid row selection", severity="error")
             return
-
         artist = self._artists[row_index]
 
-        def handle_edit_result(updated_artist: Artist | None) -> None:
-            if updated_artist:
-                save_object(updated_artist, self.db_session, self.app.notify)
-                self.load_artists()
-
-        self.app.push_screen(EditArtistScreen(artist), handle_edit_result)
+        self.app.push_screen(EditArtistScreen(artist), self.handle_modal_result)
 
 
 class AddArtistScreen(ModalScreen[Artist | None]):
