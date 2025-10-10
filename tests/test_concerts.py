@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from textual.widgets import Select
 
 from concert_db.models import Artist, Concert, Venue
-from concert_db.ui.concert import AddConcertScreen, Concerts, Sorting
+from concert_db.ui.concert import AddConcertScreen, Concerts, EditConcertScreen, Sorting
 
 from .utils import save_objects
 
@@ -37,9 +37,13 @@ def test_load_concerts(db_session: Session) -> None:
 
 
 def test_fetch_data_empty(db_session: Session) -> None:
-    screen = AddConcertScreen(db_session)
-    assert screen.artists == []
-    assert screen.venues == []
+    add_screen = AddConcertScreen(db_session)
+    assert add_screen.artists == []
+    assert add_screen.venues == []
+
+    edit_screen = EditConcertScreen(Concert(), db_session)
+    assert edit_screen.artists == []
+    assert edit_screen.venues == []
 
 
 def test_fetch_data(db_session: Session) -> None:
@@ -49,11 +53,15 @@ def test_fetch_data(db_session: Session) -> None:
     a2 = Artist(name="Madonna", genre="Pop")
     save_objects((v1, v2, a1, a2), db_session)
 
-    screen = AddConcertScreen(db_session)
-
+    add_screen = AddConcertScreen(db_session)
     # verify ordering by name
-    assert screen.artists == [a2, a1]
-    assert screen.venues == [v2, v1]
+    assert add_screen.artists == [a2, a1]
+    assert add_screen.venues == [v2, v1]
+
+    edit_screen = EditConcertScreen(Concert(), db_session)
+    # verify ordering by name
+    assert edit_screen.artists == [a2, a1]
+    assert edit_screen.venues == [v2, v1]
 
 
 def mock_query_one(artist: Mock, venue: Mock, date: Mock) -> Mock:

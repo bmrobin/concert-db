@@ -23,6 +23,19 @@ AddConcertScreen > Vertical {
     }
 }
 
+EditConcertScreen > Vertical {
+    align: center middle;
+    width: 60;
+    height: 30;
+    border: thick $background 80%;
+    background: $surface;
+    padding: 2;
+
+    Horizontal {
+      align: center bottom;
+    }
+}
+
 .title {
     text-align: center;
     text-style: italic;
