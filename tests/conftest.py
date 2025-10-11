@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from concert_db.settings import get_db_config
 
 if TYPE_CHECKING:
-    from textual.screen import ModalScreen
+    from textual.widget import Widget
 
 db_config = get_db_config()
 
@@ -29,15 +29,15 @@ def db_session() -> Generator[Session, None, None]:
 
 
 @pytest.fixture()
-def mock_app() -> Callable[["ModalScreen"], Mock]:
+def mock_app() -> Callable[["Widget"], Mock]:
     """
-    The @property app can't be set with equals (e.g. screen.app = Mock()).
-    Use this approach on screens that need access to the `self.app` property.
+    The Textual @property `self.app` can't be set with equals (e.g. screen.app = Mock()).
+    Use this approach on widgets that need access to the `self.app` property.
     """
 
-    def _mock_app(test_screen: "ModalScreen") -> Mock:
+    def _mock_app(test_widget: "Widget") -> Mock:
         mock_app = Mock()
-        type(test_screen).app = PropertyMock(return_value=mock_app)
+        type(test_widget).app = PropertyMock(return_value=mock_app)
         return mock_app
 
     return _mock_app

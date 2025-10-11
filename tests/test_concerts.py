@@ -64,6 +64,30 @@ def test_fetch_data(db_session: Session) -> None:
     assert edit_screen.venues == [v2, v1]
 
 
+def test_handle_modal_result_empty(db_session: Session) -> None:
+    component = Concerts(db_session)
+    component.handle_modal_result(None)
+
+    assert db_session.query(Concert).count() == 0
+
+
+def test_handle_modal_result(db_session: Session, mock_app: Mock) -> None:
+    component = Concerts(db_session)
+    mock_table = Mock()
+    mock_query = Mock(return_value=mock_table)
+    _mock_app = mock_app(component)
+    component.query_one = mock_query
+
+    artist = Artist(name="Foo Fighters", genre="Rock")
+    venue = Venue(name="Asheville Civic Center", location="Asheville, NC")
+    component.handle_modal_result(Concert(artist=artist, venue=venue, date="2018-12-15"))
+
+    _mock_app.notify.assert_called_once_with("Saved successfully!", severity="information")
+    mock_table.add_columns.assert_called_once_with("Artist", "Venue", "Date")
+    mock_table.add_rows.assert_called_once_with([("Foo Fighters", "Asheville Civic Center", "2018-12-15")])
+    assert db_session.query(Concert).count() == 1
+
+
 def mock_query_one(artist: Mock, venue: Mock, date: Mock) -> Mock:
     return Mock(
         side_effect=lambda selector, _: {
@@ -207,6 +231,71 @@ def test_create_concert_cancel(db_session: Session, mock_app: Mock) -> None:
     screen.dismiss = Mock()
 
     _mock_app = mock_app(screen)
+
+    button = Mock()
+    button.id = "cancel"
+    event = Mock()
+    event.button = button
+    screen.on_button_pressed(event)
+
+    _mock_app.notify.assert_not_called()
+    screen.dismiss.assert_called_once_with(None)
+    assert db_session.query(Concert).count() == 0
+    assert db_session.query(Artist).count() == 0
+    assert db_session.query(Venue).count() == 0
+
+
+def test_edit_concert_with_valid_data(db_session: Session, mock_app: Mock) -> None:
+    artist = Artist(name="Radiohead", genre="Rock")
+    venue = Venue(name="Red Rocks", location="Morrison, CO")
+    concert = Concert(artist=artist, venue=venue, date="2023-09-15")
+    save_objects((artist, venue, concert), db_session)
+
+    screen = EditConcertScreen(concert, db_session)
+
+    artist_input = Mock()
+    artist_input.value = artist.name
+    venue_input = Mock()
+    venue_input.value = venue.name
+    date_input = Mock()
+    date_input.value = "2023-10-20"
+
+    screen.query_one = mock_query_one(artist_input, venue_input, date_input)
+    screen.dismiss = Mock()
+    _mock_app = mock_app(screen)
+
+    button = Mock()
+    button.id = "save"
+    event = Mock()
+    event.button = button
+    screen.on_button_pressed(event)
+
+    _mock_app.notify.assert_not_called()
+    screen.dismiss.assert_called_once()
+    updated_concert = screen.dismiss.call_args[0][0]
+    assert isinstance(updated_concert, Concert)
+    assert updated_concert.id == concert.id
+    assert updated_concert.artist.name == "Radiohead"
+    assert updated_concert.venue.name == "Red Rocks"
+    assert updated_concert.date == "2023-10-20"
+
+
+def test_edit_concert_cancel(db_session: Session, mock_app: Mock) -> None:
+    artist = Artist(name="Radiohead", genre="Rock")
+    venue = Venue(name="Red Rocks", location="Morrison, CO")
+    concert = Concert(artist=artist, venue=venue, date="2023-09-15")
+    screen = EditConcertScreen(concert, db_session)
+    _mock_app = mock_app(screen)
+
+    artist_input = Mock()
+    artist_input.value = "artist"
+    venue_input = Mock()
+    venue_input.value = "venue"
+    date_input = Mock()
+    date_input.value = "1"
+
+    screen.query_one = mock_query_one(artist_input, venue_input, date_input)
+    screen.dismiss = Mock()
 
     button = Mock()
     button.id = "cancel"
