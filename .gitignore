@@ -12,3 +12,6 @@ wheels/
 
 # Database
 concert_db.sqlite
+
+# Secrets
+.env

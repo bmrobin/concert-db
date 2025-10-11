@@ -1,5 +1,4 @@
 import os
-from typing import Generator
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
@@ -58,16 +57,6 @@ class DatabaseConfig:
         Get a new database session.
         """
         return self.sessionmaker()  # type: ignore
-
-    def get_session_generator(self) -> Generator[Session, None, None]:
-        """
-        Get a database session as a context manager.
-        """
-        session = self.get_session()
-        try:
-            yield session
-        finally:
-            session.close()
 
 
 def get_db_config() -> DatabaseConfig:

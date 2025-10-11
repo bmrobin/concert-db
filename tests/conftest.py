@@ -4,7 +4,7 @@ from unittest.mock import Mock, PropertyMock
 import pytest
 from sqlalchemy.orm import Session
 
-from concert_db.settings.db_config import get_db_config
+from concert_db.settings import get_db_config
 
 if TYPE_CHECKING:
     from textual.screen import ModalScreen
