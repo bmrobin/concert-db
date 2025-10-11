@@ -3,7 +3,7 @@ import os
 from sqlalchemy.orm import Session
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
-from textual.widgets import Footer, Header, Rule
+from textual.widgets import Footer, Rule
 
 from concert_db.settings import get_db_config
 from concert_db.ui import ArtistScreen, VenueScreen
