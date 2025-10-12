@@ -32,7 +32,7 @@ class Concerts(Horizontal):
     def on_mount(self) -> None:
         self.load_concerts(sorting=self.columns[2])
 
-    def load_concerts(self, sorting: Sorting) -> None:
+    def load_concerts(self, sorting: Sorting, filter_by: str | None = None) -> None:
         """
         Load and display concerts in the table.
         """
@@ -49,9 +49,14 @@ class Concerts(Horizontal):
                 column_name = Concert.date  # type: ignore[assignment]
 
         ordering = column_name.asc() if sorting.ascending else column_name.desc()
-        concerts: list[Concert] = (
-            self.db_session.query(Concert).join(Artist).join(Venue).order_by(ordering.nulls_last()).all()
-        )
+        filtering = None
+        query = self.db_session.query(Concert).join(Artist).join(Venue).order_by(ordering.nulls_last())
+        if filter_by:
+            filtering = f"%{filter_by}%"
+            query = query.filter(
+                (Artist.name.ilike(filtering)) | (Venue.name.ilike(filtering)) | (Concert.date.ilike(filtering))
+            )
+        concerts: list[Concert] = query.all()
 
         table.add_rows(
             [
