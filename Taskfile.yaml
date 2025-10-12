@@ -32,3 +32,9 @@ tasks:
     cmds:
       - rm concert_db.sqlite
       - python add_sample_data.py
+
+  shell:
+    env:
+      ENVIRONMENT: development
+    desc: 'Start a shell with database configured'
+    cmd: ipython -i scripts/db_shell.py
