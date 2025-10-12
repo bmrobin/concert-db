@@ -28,10 +28,11 @@ tasks:
   seed:
     env:
       ENVIRONMENT: development
+      PYTHONPATH: .
     desc: 'Seed the database with dummy data'
     cmds:
-      - rm concert_db.sqlite
-      - python add_sample_data.py
+      - rm -f concert_db.sqlite
+      - uv run python -m scripts.add_sample_data
 
   shell:
     env:
