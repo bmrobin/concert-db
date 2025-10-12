@@ -36,6 +36,15 @@ EditConcertScreen > Vertical {
     }
 }
 
+#filter_container {
+    align: left top;
+    width: 30%;
+}
+
+.filter-input {
+    width: 75%;
+}
+
 .title {
     text-align: center;
     text-style: italic;

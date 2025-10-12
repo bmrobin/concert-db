@@ -18,18 +18,27 @@ class Concerts(Horizontal):
     BINDINGS: ClassVar = [
         Binding("c", "add_concert", "Add Concert"),
         Binding("e", "edit_concert", "Edit Concert"),
+        Binding("f", "find", "Find"),
+        Binding("escape", "clear_filter", "Clear Filter"),
     ]
 
     columns: ClassVar = SortableColumns(["Artist", "Venue", "Date"])
 
     def __init__(self, db_session: Session) -> None:
         self.db_session = db_session
+        self._filter_visible = False
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        yield DataTable(id="concerts_table", zebra_stripes=True, cell_padding=6)
+        with Horizontal():
+            yield DataTable(id="concerts_table", zebra_stripes=True, cell_padding=6)
+            with Vertical(id="filter_container"):
+                yield Label("Filter:", classes="filter-label")
+                yield Input(placeholder="Type to filter concerts...", id="filter_input", classes="filter-input")
 
     def on_mount(self) -> None:
+        # initial state: filter hidden and sorted by date
+        self.query_one("#filter_container").display = False
         self.load_concerts(sorting=self.columns[2])
 
     def load_concerts(self, sorting: Sorting, filter_by: str | None = None) -> None:
@@ -72,7 +81,13 @@ class Concerts(Horizontal):
     def handle_modal_result(self, concert: Concert | None) -> None:
         if concert:
             save_object(concert, self.db_session, self.app.notify)
-            self.load_concerts(sorting=self.columns[2])
+            # Preserve current filter when refreshing
+            current_filter = None
+            if self._filter_visible:
+                filter_input = self.query_one("#filter_input", Input)
+                current_filter = filter_input.value.strip() if filter_input.value.strip() else None
+            current_sorting = next((col for col in self.columns.values if col.ascending is not None), self.columns[2])
+            self.load_concerts(sorting=current_sorting, filter_by=current_filter)
 
     def action_add_concert(self) -> None:
         self.app.push_screen(AddConcertScreen(self.db_session), self.handle_modal_result)
@@ -99,6 +114,42 @@ class Concerts(Horizontal):
             raise ValueError("Could not find concert to edit")
 
         self.app.push_screen(EditConcertScreen(concert, self.db_session), self.handle_modal_result)
+
+    def action_find(self) -> None:
+        filter_container = self.query_one("#filter_container")
+        filter_input = self.query_one("#filter_input", Input)
+
+        if self._filter_visible:
+            # Hide filter and clear it
+            filter_container.display = False
+            filter_input.value = ""
+            self._filter_visible = False
+            self.load_concerts(sorting=self.columns[2], filter_by=None)
+        else:
+            # Show filter and focus it
+            filter_container.display = True
+            filter_input.focus()
+            self._filter_visible = True
+
+    def action_clear_filter(self) -> None:
+        if self._filter_visible:
+            filter_container = self.query_one("#filter_container")
+            filter_input = self.query_one("#filter_input", Input)
+            filter_container.display = False
+            filter_input.value = ""
+            self._filter_visible = False
+            self.load_concerts(sorting=self.columns[2], filter_by=None)
+            table = self.query_one("#concerts_table", DataTable)
+            table.focus()
+
+    @on(Input.Changed, "#filter_input")
+    def filter_changed(self, event: Input.Changed) -> None:
+        filter_text = event.value.strip() or None
+        current_sorting = next(
+            (col for col in self.columns.values if col.ascending is not None),
+            self.columns[2],  # or, use date
+        )
+        self.load_concerts(sorting=current_sorting, filter_by=filter_text)
 
     @on(DataTable.HeaderSelected, "#concerts_table")
     def header_selected(self, event: DataTable.HeaderSelected) -> None:
