@@ -36,6 +36,44 @@ def test_load_concerts(db_session: Session) -> None:
     )
 
 
+def test_load_concerts_filtering(db_session: Session) -> None:
+    v1 = Venue(name="Red Rocks Amphitheater", location="Easley, SC")
+    v2 = Venue(name="Roxy", location="Somewhere, AZ")
+    a1 = Artist(name="Heady Lamar", genre="Lounge")
+    a2 = Artist(name="Radiohead", genre="alt rock")
+    a3 = Artist(name="Radiohead", genre="alt rock")
+    c1 = Concert(artist=a1, venue=v1, date="2006-08-11")
+    c2 = Concert(artist=a2, venue=v1, date=None)
+    save_objects((v1, v2, a1, a2, a3, c1, c2), db_session)
+    concert_ui = Concerts(db_session)
+
+    mock_table = Mock()
+    concert_ui.query_one = lambda *_args, **_kwargs: mock_table
+
+    for filter_by in [
+        # these match 2 artists
+        "HEAD",
+        "hEaD",
+        "heAD",
+        # these match 2 artists & 1 venue
+        "hea",
+        "HEA",
+    ]:
+        concert_ui.load_concerts(Sorting(0, "Artist", True), filter_by)
+        mock_table.add_rows.assert_called_once_with(
+            [("Heady Lamar", "Red Rocks Amphitheater", "2006-08-11"), ("Radiohead", "Red Rocks Amphitheater", "n/a")]
+        )
+        mock_table.add_rows.reset_mock()
+
+    # TODO: add tests that column sorting is preserved
+    # TODO: add tests for filters matching zero results
+
+    concert_ui.load_concerts(Sorting(0, "Artist", True), filter_by)
+    mock_table.add_rows.assert_called_once_with(
+        [("Heady Lamar", "Red Rocks Amphitheater", "2006-08-11"), ("Radiohead", "Red Rocks Amphitheater", "n/a")]
+    )
+
+
 def test_fetch_data_empty(db_session: Session) -> None:
     add_screen = AddConcertScreen(db_session)
     assert add_screen.artists == []
