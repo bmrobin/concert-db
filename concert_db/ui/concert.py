@@ -153,6 +153,11 @@ class Concerts(Horizontal):
 
     @on(DataTable.HeaderSelected, "#concerts_table")
     def header_selected(self, event: DataTable.HeaderSelected) -> None:
+        filter_container = self.query_one("#filter_container")
+        filter_input = self.query_one("#filter_input", Input)
+        filter_text = None
+        if self._filter_visible is True and filter_container.display is True:
+            filter_text = filter_input.value.strip() or None
         for idx, column in enumerate(self.columns.values):
             if idx != event.column_index:
                 column.ascending = None  # reset sort on other columns
@@ -160,7 +165,7 @@ class Concerts(Horizontal):
                 _column = self.columns[event.column_index]
                 _column.ascending = not _column.ascending
 
-        self.load_concerts(sorting=_column)
+        self.load_concerts(sorting=_column, filter_by=filter_text)
 
 
 def fetch_data(db_session: Session) -> tuple[list[Artist], list[Venue]]:
