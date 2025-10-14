@@ -11,7 +11,7 @@ wheels/
 .venv
 
 # Database
-concert_db.sqlite
+*.sqlite
 
 # Secrets
 .env

@@ -10,7 +10,7 @@
             "request": "launch",
             "module": "concert_db.app",
             "env": {
-                "ENVIRONMENT": "development",
+                "ENVIRONMENT": "dev",
             }
         }
     ]

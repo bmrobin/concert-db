@@ -15,7 +15,6 @@ dev = [
     "mypy>=1.18.2",
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
-    "pytest-env>=1.1.5",
 ]
 
 [tool.ruff]
@@ -27,8 +26,6 @@ select = ["SIM", "I", "ARG", "E", "W", "F", "RUF"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
-[tool.pytest_env]
-ENVIRONMENT = "test"
 
 [tool.mypy]
 # Basic configuration

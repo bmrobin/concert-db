@@ -63,7 +63,8 @@ def get_db_config() -> DatabaseConfig:
     """
     Get database configuration based on environment.
     """
-    if os.getenv("ENVIRONMENT", None) == "development":
-        return DatabaseConfig("sqlite:///concert_db.sqlite")
-    else:
+    env = os.getenv("ENVIRONMENT", None)
+    if env is None:
         return DatabaseConfig("sqlite:///:memory:")
+    else:
+        return DatabaseConfig(f"sqlite:///concert_db_{env}.sqlite")

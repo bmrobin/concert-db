@@ -16,26 +16,40 @@ tasks:
     desc: 'Run all checks'
     ignore_error: true
     cmds:
-      - task lint
-      - task test
+      - task: lint
+      - task: test
 
   app:
     env:
-      ENVIRONMENT: development
-    desc: 'Run the application'
+      ENVIRONMENT: '{{.ENVIRONMENT}}'
     cmd: python -m concert_db.app
+    internal: true
+
+  dev:
+    desc: 'Run the application in development mode'
+    cmds:
+      - task: app
+        vars:
+          ENVIRONMENT: dev
+
+  prd:
+    desc: 'Run the application'
+    cmds:
+      - task: app
+        vars:
+          ENVIRONMENT: prod
 
   seed:
     env:
-      ENVIRONMENT: development
+      ENVIRONMENT: dev
       PYTHONPATH: .
     desc: 'Seed the database with dummy data'
     cmds:
-      - rm -f concert_db.sqlite
+      - rm -f concert_db_dev.sqlite
       - uv run python -m scripts.add_sample_data
 
   shell:
     env:
-      ENVIRONMENT: development
+      ENVIRONMENT: dev
     desc: 'Start a shell with database configured'
     cmd: ipython -i scripts/db_shell.py

@@ -18,13 +18,20 @@ $ source .venv/bin/activate
 $ task all
 ```
 
+## Running
+Run the app in one of two modes: `development` or `production`. This distinction is mostly just useful for having an
+environment to test and work with while coding with a separate, dedicated SQLite database (see the `seed` task).
+
+```sh
+task prd
+
+task dev
+```
+
 ### Scripts
 _Use `task -l` to see all available tasks to run._
 
 ```sh
-# launch app
-task app
-
 # test
 task test
 

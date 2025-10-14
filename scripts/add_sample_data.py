@@ -8,7 +8,7 @@ def add_sample_data():
     """
     Add some sample artists, venues, and concerts.
     """
-    os.environ["ENVIRONMENT"] = "development"
+    os.environ["ENVIRONMENT"] = "dev"
 
     db_config = get_db_config()
     db_config.create_tables()

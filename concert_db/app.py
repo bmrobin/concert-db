@@ -33,7 +33,7 @@ class ConcertDbApp(App):
 
 if __name__ == "__main__":
     if os.getenv("ENVIRONMENT", None) is None:
-        raise RuntimeError("ENVIRONMENT variable not set - required for loading")
+        raise RuntimeError("ENVIRONMENT variable not set - required for running application")
     db_config = get_db_config()
     db_config.create_tables()
 
