@@ -15,3 +15,4 @@ wheels/
 
 # Secrets
 .env
+google_*.json
