@@ -6,7 +6,7 @@ tasks:
     cmds:
       - ruff format
       - ruff check --fix
-      - mypy concert_db/ tests/
+      - ty check
 
   test:
     desc: 'Run tests'

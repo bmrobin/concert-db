@@ -64,7 +64,7 @@ class DatabaseConfig:
         """
         Get a new database session.
         """
-        return self.sessionmaker()  # type: ignore
+        return self.sessionmaker()
 
 
 class DatabaseBackupConfig:
